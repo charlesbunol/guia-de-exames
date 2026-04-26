@@ -13,6 +13,10 @@ const materialProfiles = {
     material: 'Sangue venoso para obtenção de soro',
     container: 'Tubo seco com gel separador/ativador de coágulo (tampa amarela ou vermelha, conforme rotina da unidade).',
     fleuryNote: 'No Guia Fleury, grande parte das dosagens hormonais, sorologias, marcadores tumorais, vitaminas e bioquímica clínica é descrita como material em soro.',
+    alternatives: [
+      'Em alguns cadastros do Fleury, o mesmo analito também aparece como plasma ou sangue. Nesses casos, usar somente o tubo aceito no cadastro específico do exame.',
+      'Para imunoensaios e hormônios, manter o tubo de soro como referência quando o cadastro Fleury estiver como “soro”.'
+    ],
     handling: [
       'Aguardar coagulação, centrifugar e separar o soro conforme rotina do laboratório.',
       'Evitar hemólise, lipemia intensa e coleta traumática, pois podem interferir em diversas dosagens.'
@@ -47,6 +51,10 @@ const materialProfiles = {
     material: 'Plasma fluoretado',
     container: 'Tubo com fluoreto/oxalato ou fluoreto/EDTA (tampa cinza).',
     fleuryNote: 'O Guia Fleury lista glicose como “plasma (fluoreto)”, material usado para reduzir consumo de glicose pelas células após a coleta.',
+    alternatives: [
+      'O Fleury também possui cadastro de “Glicose, soro”; nesse cenário, pode ser coletada em tubo seco com gel separador/ativador de coágulo.',
+      'Alguns cadastros de glicose pós-prandial aparecem como plasma, sem explicitar fluoreto; seguir exatamente o material do pedido/cadastro da unidade.'
+    ],
     handling: [
       'Homogeneizar suavemente e centrifugar conforme rotina.',
       'Usado quando a estabilidade da glicose é crítica.'
@@ -58,6 +66,10 @@ const materialProfiles = {
     material: 'Urina de jato médio',
     container: 'Frasco estéril apropriado para urina.',
     fleuryNote: 'O Fleury descreve urina tipo I e cultura como amostras de jato médio, com frasco adequado retirado na unidade quando a coleta é externa.',
+    alternatives: [
+      'Quando houver pedidos adicionais, pode ser necessário frasco estéril ou frasco com conservante específico.',
+      'Para cultura, priorizar frasco estéril e técnica de assepsia, mesmo que o exame de urina tipo I também tenha sido solicitado.'
+    ],
     handling: [
       'Preferir primeira urina da manhã ou permanecer pelo menos 2 horas sem urinar.',
       'Quando houver cultura junto, seguir as orientações mais rigorosas da cultura.',
@@ -82,6 +94,10 @@ const materialProfiles = {
     material: 'Fezes',
     container: 'Frasco coletor de fezes fornecido ou indicado pelo laboratório.',
     fleuryNote: 'O Fleury orienta retirar frascos adequados e folha de instruções para exames parasitológicos de fezes.',
+    alternatives: [
+      'Dependendo da pesquisa, o Fleury pode orientar frasco sem conservante, frasco com conservante ou amostras seriadas.',
+      'Quando o pedido incluir pesquisa específica em fezes, seguir o kit e o prazo indicados pela unidade.'
+    ],
     handling: [
       'Não contaminar a amostra com urina ou água do vaso sanitário.',
       'Alguns exames podem exigir amostras em dias diferentes ou conservantes específicos.',
@@ -141,6 +157,10 @@ const materialProfiles = {
     material: 'Sangue venoso para soro/plasma livre de contaminação por metais',
     container: 'Tubo específico para elementos-traço, geralmente metal-free (tampa azul-escura), conforme orientação da unidade.',
     fleuryNote: 'Oligoelementos exigem cuidado extra para evitar contaminação por metais do material de coleta.',
+    alternatives: [
+      'Não substituir por tubo comum sem confirmação da unidade, pois tampas e aditivos podem contaminar a amostra.',
+      'Alguns elementos-traço podem ter exigência própria de soro, plasma, sangue total ou urina.'
+    ],
     handling: [
       'Usar somente material indicado pelo laboratório.',
       'Evitar contato com tampas, agulhas ou recipientes inadequados para elementos-traço.'
@@ -164,6 +184,10 @@ const materialProfiles = {
     material: 'Sangue venoso para BNP/NT-proBNP',
     container: 'BNP: geralmente plasma em EDTA. NT-proBNP: soro ou plasma EDTA, conforme metodologia do laboratório.',
     fleuryNote: 'Como BNP e Pró-BNP podem usar materiais diferentes conforme o ensaio, a rotina da unidade e o pedido devem ser conferidos no cadastro atualizado.',
+    alternatives: [
+      'BNP costuma exigir EDTA.',
+      'NT-proBNP pode ser aceito em soro ou plasma EDTA, conforme o método em uso.'
+    ],
     handling: [
       'Evitar esforço físico intenso antes da coleta quando orientado.',
       'Processar e transportar conforme estabilidade definida pelo método utilizado.'
@@ -175,9 +199,43 @@ const materialProfiles = {
     material: 'Plasma, preferencialmente separado rapidamente das células',
     container: 'Tubo com EDTA ou heparina, conforme rotina da unidade.',
     fleuryNote: 'Homocisteína é sensível ao tempo de contato com células; a etapa pré-analítica pesa mais que a cor do tubo isoladamente.',
+    alternatives: [
+      'Pode ser realizada em plasma EDTA ou heparinizado quando a rotina do laboratório permite.',
+      'Evitar soro quando o cadastro solicitar plasma separado rapidamente.'
+    ],
     handling: [
       'Centrifugar e separar o plasma rapidamente.',
       'Manter resfriado quando indicado pela unidade.'
+    ],
+    sourceLabel: collectionSources.fleuryGeneral,
+    sourceUrl: sourceUrls.fleuryGeneral,
+  },
+  potassium: {
+    material: 'Soro, preferencialmente',
+    container: 'Tubo seco com gel separador/ativador de coágulo. Plasma heparinizado pode ser aceito quando previsto pela rotina.',
+    fleuryNote: 'O Fleury descreve potássio em soro e cita plasma apenas quando coletado com heparina; amostras com EDTA, citrato ou fluoreto não são adequadas para potássio.',
+    alternatives: [
+      'Plasma heparinizado é alternativa possível.',
+      'Não usar EDTA, citrato ou fluoreto para dosagem de potássio.'
+    ],
+    handling: [
+      'Evitar hemólise, pois ela eleva falsamente o potássio.',
+      'Evitar garroteamento prolongado e contração repetida da mão durante a coleta.'
+    ],
+    sourceLabel: collectionSources.fleuryGeneral,
+    sourceUrl: sourceUrls.fleuryGeneral,
+  },
+  serumOrPlasma: {
+    material: 'Soro ou plasma, conforme cadastro do exame',
+    container: 'Tubo seco com gel separador/ativador de coágulo ou tubo com anticoagulante aceito pela metodologia.',
+    fleuryNote: 'Alguns exames bioquímicos no Fleury aparecem com cadastros relacionados em soro e plasma; a escolha deve seguir a metodologia ativa da unidade.',
+    alternatives: [
+      'Quando o cadastro permitir plasma, usar o anticoagulante especificado pelo laboratório, geralmente heparina para bioquímica.',
+      'Quando o cadastro mencionar apenas soro, manter tubo seco com gel como padrão.'
+    ],
+    handling: [
+      'Separar soro/plasma após centrifugação conforme rotina.',
+      'Evitar hemólise e atraso no processamento quando o analito for instável.'
     ],
     sourceLabel: collectionSources.fleuryGeneral,
     sourceUrl: sourceUrls.fleuryGeneral,
@@ -220,6 +278,17 @@ const profileByExamId = {
   'zinco-selenio': materialProfiles.traceElements,
   calcio: materialProfiles.ionizedCalcium,
   'calcio-ionico': materialProfiles.ionizedCalcium,
+  sodio: materialProfiles.serumOrPlasma,
+  cloro: materialProfiles.serumOrPlasma,
+  bicarbonato: materialProfiles.serumOrPlasma,
+  creatinina: materialProfiles.serumOrPlasma,
+  ureia: materialProfiles.serumOrPlasma,
+  'acido-urico': materialProfiles.serumOrPlasma,
+  albumina: materialProfiles.serumOrPlasma,
+  'proteinas-totais': materialProfiles.serumOrPlasma,
+  ferritina: materialProfiles.serumOrPlasma,
+  'ferro-serico': materialProfiles.serumOrPlasma,
+  potassio: materialProfiles.potassium,
   homocisteina: materialProfiles.homocysteine,
   anticardiolipina: materialProfiles.serum,
   'hla-b27': materialProfiles.edta,

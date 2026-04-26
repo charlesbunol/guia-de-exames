@@ -119,6 +119,21 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
               <strong>Referência Fleury:</strong>
               <span>{collectionInfo.fleuryNote}</span>
             </div>
+            {collectionInfo.alternatives && collectionInfo.alternatives.length > 0 && (
+              <div className="collection-alternatives">
+                <strong>Possibilidades aceitas:</strong>
+                <ul className="info-list collection-list">
+                  {collectionInfo.alternatives.map((item, idx) => (
+                    <li key={idx}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {collectionInfo.handling && collectionInfo.handling.length > 0 && (
               <ul className="info-list collection-list">
                 {collectionInfo.handling.map((item, idx) => (
@@ -412,6 +427,17 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
         }
         .collection-row strong {
           color: var(--text-main);
+        }
+        .collection-alternatives {
+          padding: 1rem;
+          background: rgba(16, 185, 129, 0.08);
+          border: 1px solid rgba(16, 185, 129, 0.22);
+          border-radius: var(--radius-md);
+        }
+        .collection-alternatives strong {
+          display: block;
+          color: var(--text-main);
+          margin-bottom: 0.6rem;
         }
         .collection-list {
           padding: 0.25rem 0 0;
