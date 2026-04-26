@@ -1,4 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  BrowserRouter,
+  Link,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import Header from './components/Header';
 import SearchHero from './components/SearchHero';
 import ResultDashboard from './components/ResultDashboard';
@@ -7,11 +17,169 @@ import About from './components/About';
 import { Mascot } from './components/Mascot';
 import { examsData } from './data/exams';
 
-function App() {
-  const [currentView, setCurrentView] = useState('home'); // 'home' or 'about'
-  const [searchResults, setSearchResults] = useState(examsData); // Mostra todos inicialmente
-  const [selectedExam, setSelectedExam] = useState(null);
-  
+const filterExams = (term) => {
+  const termLower = term.trim().toLowerCase();
+
+  if (!termLower) {
+    return examsData;
+  }
+
+  return examsData.filter(exam =>
+    exam.name.toLowerCase().includes(termLower) ||
+    exam.shortDescription.toLowerCase().includes(termLower) ||
+    (exam.purpose && exam.purpose.toLowerCase().includes(termLower)) ||
+    (exam.methodology && exam.methodology.toLowerCase().includes(termLower)) ||
+    exam.related.some(r => r.toLowerCase().includes(termLower)) ||
+    (exam.synonyms && exam.synonyms.some(s => s.toLowerCase().includes(termLower))) ||
+    (exam.components && exam.components.some(c => c.toLowerCase().includes(termLower)))
+  ).sort((a, b) => {
+    const aName = a.name.toLowerCase();
+    const bName = b.name.toLowerCase();
+    const exactA = aName === termLower || a.id === termLower || (a.synonyms && a.synonyms.some(s => s.toLowerCase() === termLower));
+    const exactB = bName === termLower || b.id === termLower || (b.synonyms && b.synonyms.some(s => s.toLowerCase() === termLower));
+    if (exactA && !exactB) return -1;
+    if (!exactA && exactB) return 1;
+
+    const startsA = aName.startsWith(termLower);
+    const startsB = bName.startsWith(termLower);
+    if (startsA && !startsB) return -1;
+    if (!startsA && startsB) return 1;
+
+    return 0;
+  });
+};
+
+const findRelatedExam = (name) => {
+  const termLower = name.toLowerCase();
+
+  return examsData.find(e =>
+    e.name.toLowerCase().includes(termLower) ||
+    e.id === termLower ||
+    termLower.includes(e.id)
+  );
+};
+
+const getExamPath = (examId) => `/exames/${encodeURIComponent(examId)}`;
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [pathname]);
+
+  return null;
+}
+
+function HomePage() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get('q') || '';
+
+  const searchResults = useMemo(() => filterExams(query), [query]);
+
+  const handleSearch = useCallback((term) => {
+    const trimmedTerm = term.trim();
+    setSearchParams(trimmedTerm ? { q: trimmedTerm } : {}, { replace: true });
+  }, [setSearchParams]);
+
+  const handleSelectExam = useCallback((exam) => {
+    navigate(getExamPath(exam.id));
+  }, [navigate]);
+
+  return (
+    <>
+      <SearchHero searchValue={query} onSearch={handleSearch} />
+      <ResultDashboard exams={searchResults} onSelectExam={handleSelectExam} />
+    </>
+  );
+}
+
+function ExamDetailsPage() {
+  const { examId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const exam = useMemo(() => {
+    return examsData.find(item => item.id === examId);
+  }, [examId]);
+
+  const handleBack = useCallback(() => {
+    if (location.key !== 'default') {
+      navigate(-1);
+      return;
+    }
+
+    navigate('/');
+  }, [location.key, navigate]);
+
+  const handleSelectRelated = useCallback((name) => {
+    const foundExam = findRelatedExam(name);
+
+    if (foundExam) {
+      navigate(getExamPath(foundExam.id));
+      return;
+    }
+
+    navigate(`/?q=${encodeURIComponent(name)}`);
+  }, [navigate]);
+
+  if (!exam) {
+    return <ExamNotFound />;
+  }
+
+  return (
+    <ExamDetails
+      exam={exam}
+      onBack={handleBack}
+      onSelectRelated={handleSelectRelated}
+    />
+  );
+}
+
+function ExamNotFound() {
+  return (
+    <div className="not-found container">
+      <h2>Exame não encontrado</h2>
+      <p>Não encontramos esse exame no guia. Você pode voltar para a busca e tentar outro termo.</p>
+      <Link to="/" className="not-found-link">Voltar para a busca</Link>
+
+      <style>{`
+        .not-found {
+          max-width: 720px;
+          padding-top: 4rem;
+          padding-bottom: 4rem;
+          text-align: center;
+        }
+        .not-found h2 {
+          color: var(--text-main);
+          font-size: 2rem;
+          margin-bottom: 1rem;
+        }
+        .not-found p {
+          color: var(--text-muted);
+          margin-bottom: 1.5rem;
+        }
+        .not-found-link {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--primary);
+          color: #fff;
+          padding: 0.75rem 1.25rem;
+          border-radius: var(--radius-md);
+          font-weight: 600;
+        }
+        .not-found-link:hover {
+          color: #fff;
+          background: var(--primary-hover);
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function AppShell() {
   // Inicializa o tema checando o localStorage ou a preferência do sistema
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -29,92 +197,21 @@ function App() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
-  const handleSearch = useCallback((term) => {
-    const termLower = term.trim().toLowerCase();
-
-    if (!termLower) {
-      setSearchResults(examsData);
-      setSelectedExam(null);
-      return;
-    }
-
-    const filtered = examsData.filter(exam => 
-      exam.name.toLowerCase().includes(termLower) || 
-      exam.shortDescription.toLowerCase().includes(termLower) ||
-      (exam.purpose && exam.purpose.toLowerCase().includes(termLower)) ||
-      (exam.methodology && exam.methodology.toLowerCase().includes(termLower)) ||
-      exam.related.some(r => r.toLowerCase().includes(termLower)) ||
-      (exam.synonyms && exam.synonyms.some(s => s.toLowerCase().includes(termLower))) ||
-      (exam.components && exam.components.some(c => c.toLowerCase().includes(termLower)))
-    ).sort((a, b) => {
-      // Prioritize exact match or starts with
-      const aName = a.name.toLowerCase();
-      const bName = b.name.toLowerCase();
-      const exactA = aName === termLower || a.id === termLower || (a.synonyms && a.synonyms.some(s => s.toLowerCase() === termLower));
-      const exactB = bName === termLower || b.id === termLower || (b.synonyms && b.synonyms.some(s => s.toLowerCase() === termLower));
-      if (exactA && !exactB) return -1;
-      if (!exactA && exactB) return 1;
-      
-      const startsA = aName.startsWith(termLower);
-      const startsB = bName.startsWith(termLower);
-      if (startsA && !startsB) return -1;
-      if (!startsA && startsB) return 1;
-      
-      return 0;
-    });
-    setSearchResults(filtered);
-    setSelectedExam(null); // Volta para a listagem ao pesquisar
-  }, []);
-
-  const handleSelectExam = (exam) => {
-    setSelectedExam(exam);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleSelectRelated = (name) => {
-    const termLower = name.toLowerCase();
-    const foundExam = examsData.find(e => 
-      e.name.toLowerCase().includes(termLower) || 
-      e.id === termLower ||
-      termLower.includes(e.id)
-    );
-    if (foundExam) {
-      setSelectedExam(foundExam);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      handleSearch(name);
-    }
-  };
-
-  const handleBack = () => {
-    setSelectedExam(null);
-  };
-
-  const handleViewChange = (view) => {
-    setCurrentView(view);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <div className="app-wrapper">
-      <Header 
-        currentView={currentView} 
-        onViewChange={handleViewChange} 
+      <Header
         theme={theme}
         toggleTheme={toggleTheme}
       />
-      
+      <ScrollToTop />
+
       <main>
-        {currentView === 'about' ? (
-          <About />
-        ) : !selectedExam ? (
-          <>
-            <SearchHero onSearch={handleSearch} />
-            <ResultDashboard exams={searchResults} onSelectExam={handleSelectExam} />
-          </>
-        ) : (
-          <ExamDetails exam={selectedExam} onBack={handleBack} onSelectRelated={handleSelectRelated} />
-        )}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/sobre" element={<About />} />
+          <Route path="/exames/:examId" element={<ExamDetailsPage />} />
+          <Route path="*" element={<ExamNotFound />} />
+        </Routes>
       </main>
 
       <footer className="footer">
@@ -152,6 +249,14 @@ function App() {
       `}</style>
       <Mascot />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
   );
 }
 

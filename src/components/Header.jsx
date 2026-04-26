@@ -1,30 +1,29 @@
-import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
 
-const Header = ({ currentView, onViewChange, theme, toggleTheme }) => {
+const Header = ({ theme, toggleTheme }) => {
   return (
     <header className="header">
       <div className="container header-container">
-        <div className="logo" onClick={() => onViewChange('home')} style={{cursor: 'pointer'}}>
+        <Link to="/" className="logo">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
             <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
           </svg>
           <h1>Guia de Exames do <span>Gato de Botas</span></h1>
-        </div>
+        </Link>
         <nav className="nav">
-          <a 
-            href="#" 
-            className={currentView === 'home' ? 'active' : ''} 
-            onClick={(e) => { e.preventDefault(); onViewChange('home'); }}
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) => isActive ? 'active' : ''}
           >
             Início
-          </a>
-          <a 
-            href="#" 
-            className={currentView === 'about' ? 'active' : ''} 
-            onClick={(e) => { e.preventDefault(); onViewChange('about'); }}
+          </NavLink>
+          <NavLink
+            to="/sobre"
+            className={({ isActive }) => isActive ? 'active' : ''}
           >
             Sobre
-          </a>
+          </NavLink>
           <button 
             className="theme-toggle" 
             onClick={toggleTheme} 
@@ -69,6 +68,7 @@ const Header = ({ currentView, onViewChange, theme, toggleTheme }) => {
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          text-decoration: none;
         }
         .logo h1 {
           font-size: 1.25rem;
@@ -110,6 +110,47 @@ const Header = ({ currentView, onViewChange, theme, toggleTheme }) => {
         .theme-toggle:hover {
           color: var(--primary);
           background-color: var(--primary-light);
+        }
+
+        @media (max-width: 640px) {
+          .header-container {
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.55rem;
+            height: auto;
+            min-height: 5.9rem;
+            padding-top: 0.75rem;
+            padding-bottom: 0.7rem;
+          }
+
+          .logo {
+            justify-content: center;
+            text-align: center;
+            max-width: 100%;
+          }
+
+          .logo svg {
+            flex: 0 0 auto;
+          }
+
+          .logo h1 {
+            font-size: 1.05rem;
+            line-height: 1.15;
+          }
+
+          .nav {
+            justify-content: center;
+            gap: 0.9rem;
+            width: 100%;
+          }
+
+          .nav a {
+            padding-bottom: 0.2rem;
+          }
+
+          .theme-toggle {
+            padding: 0.4rem;
+          }
         }
       `}</style>
     </header>

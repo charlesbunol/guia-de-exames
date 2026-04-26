@@ -2,11 +2,23 @@ import { useEffect, useRef, useState } from 'react';
 
 const DEBOUNCE_DELAY = 300;
 
-const SearchHero = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const SearchHero = ({ searchValue = '', onSearch }) => {
+  const [searchTerm, setSearchTerm] = useState(searchValue);
   const debounceRef = useRef(null);
   const hasTypedRef = useRef(false);
   const skipNextDebounceRef = useRef(false);
+
+  useEffect(() => {
+    const syncTimer = window.setTimeout(() => {
+      setSearchTerm(searchValue);
+      hasTypedRef.current = false;
+      skipNextDebounceRef.current = false;
+    }, 0);
+
+    return () => {
+      window.clearTimeout(syncTimer);
+    };
+  }, [searchValue]);
 
   useEffect(() => {
     if (!hasTypedRef.current) return undefined;
