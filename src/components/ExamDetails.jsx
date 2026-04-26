@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getCollectionInfo } from '../data/collectionMaterials';
 
 const AccordionItem = ({ title, children, isOpen, onClick, className = '' }) => {
   return (
@@ -20,6 +21,7 @@ const AccordionItem = ({ title, children, isOpen, onClick, className = '' }) => 
 
 const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
   const [openSection, setOpenSection] = useState('purpose');
+  const collectionInfo = getCollectionInfo(exam);
 
   const toggleSection = (section) => {
     setOpenSection(openSection === section ? null : section);
@@ -97,6 +99,42 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
           onClick={() => toggleSection('methodology')}
         >
           <p>{exam.methodology}</p>
+        </AccordionItem>
+
+        <AccordionItem
+          title="Tubo de Coleta"
+          isOpen={openSection === 'collection'}
+          onClick={() => toggleSection('collection')}
+        >
+          <div className="collection-info">
+            <div className="collection-row">
+              <strong>Material:</strong>
+              <span>{collectionInfo.material}</span>
+            </div>
+            <div className="collection-row">
+              <strong>Tubo/recipiente:</strong>
+              <span>{collectionInfo.container}</span>
+            </div>
+            <div className="collection-row">
+              <strong>Referência Fleury:</strong>
+              <span>{collectionInfo.fleuryNote}</span>
+            </div>
+            {collectionInfo.handling && collectionInfo.handling.length > 0 && (
+              <ul className="info-list collection-list">
+                {collectionInfo.handling.map((item, idx) => (
+                  <li key={idx}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="collection-source">
+              Base: <a href={collectionInfo.sourceUrl} target="_blank" rel="noreferrer">{collectionInfo.sourceLabel}</a>. O tubo pode variar conforme unidade, kit analítico e pedido médico.
+            </p>
+          </div>
         </AccordionItem>
 
         <AccordionItem 
@@ -357,6 +395,31 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
           color: var(--text-muted);
           line-height: 1.6;
         }
+        .collection-info {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          color: var(--text-muted);
+        }
+        .collection-row {
+          display: grid;
+          grid-template-columns: minmax(130px, 0.34fr) 1fr;
+          gap: 0.75rem;
+          padding: 0.85rem 1rem;
+          background: var(--background);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+        }
+        .collection-row strong {
+          color: var(--text-main);
+        }
+        .collection-list {
+          padding: 0.25rem 0 0;
+        }
+        .collection-source {
+          font-size: 0.85rem;
+          color: var(--text-light);
+        }
         
         .info-list {
           list-style: none;
@@ -414,6 +477,11 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
           }
           .accordion-inner {
             padding: 0 1rem 1rem;
+          }
+          .collection-row {
+            grid-template-columns: 1fr;
+            gap: 0.35rem;
+            padding: 0.8rem;
           }
           .curiosities-panel.open .accordion-content {
             max-height: none;
