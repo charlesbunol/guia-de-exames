@@ -330,6 +330,20 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
         .accordion-item.open .accordion-content {
           max-height: none;
         }
+        .accordion-content::-webkit-scrollbar,
+        .curiosity-list::-webkit-scrollbar {
+          width: 8px;
+        }
+        .accordion-content::-webkit-scrollbar-track,
+        .curiosity-list::-webkit-scrollbar-track {
+          background: rgba(14, 165, 233, 0.08);
+          border-radius: var(--radius-full);
+        }
+        .accordion-content::-webkit-scrollbar-thumb,
+        .curiosity-list::-webkit-scrollbar-thumb {
+          background: var(--primary);
+          border-radius: var(--radius-full);
+        }
         .accordion-inner {
           padding: 0 1.5rem 1.5rem;
           color: var(--text-muted);
@@ -390,8 +404,24 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
             padding: 1rem;
             font-size: 1rem;
           }
+          .accordion-item.open .accordion-content {
+            max-height: min(62dvh, 520px);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) rgba(14, 165, 233, 0.08);
+          }
           .accordion-inner {
             padding: 0 1rem 1rem;
+          }
+          .curiosity-list {
+            max-height: calc(62dvh - 1rem);
+            overflow-y: scroll;
+            overscroll-behavior: contain;
+            padding-right: 0.35rem;
+            scrollbar-gutter: stable;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) rgba(14, 165, 233, 0.08);
           }
           .curiosity-list li {
             padding: 0.85rem;
