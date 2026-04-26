@@ -60,18 +60,30 @@ const Header = ({ theme, toggleTheme }) => {
         }
         .header-container {
           display: flex;
-          justify-content: space-between;
+          flex-direction: column;
+          justify-content: center;
           align-items: center;
-          height: 4rem;
+          gap: 0.55rem;
+          height: auto;
+          min-height: 5.9rem;
+          padding-top: 0.75rem;
+          padding-bottom: 0.7rem;
         }
         .logo {
           display: flex;
           align-items: center;
+          justify-content: center;
           gap: 0.5rem;
+          max-width: 100%;
+          text-align: center;
           text-decoration: none;
         }
+        .logo svg {
+          flex: 0 0 auto;
+        }
         .logo h1 {
-          font-size: 1.25rem;
+          font-size: 1.05rem;
+          line-height: 1.15;
           margin: 0;
           color: var(--text-main);
         }
@@ -81,13 +93,15 @@ const Header = ({ theme, toggleTheme }) => {
         .nav {
           display: flex;
           align-items: center;
-          gap: 1.5rem;
+          justify-content: center;
+          gap: 0.9rem;
+          width: 100%;
         }
         .nav a {
           color: var(--text-muted);
           font-weight: 500;
           text-decoration: none;
-          padding-bottom: 0.25rem;
+          padding-bottom: 0.2rem;
           border-bottom: 2px solid transparent;
           transition: all 0.2s ease;
         }
@@ -102,7 +116,7 @@ const Header = ({ theme, toggleTheme }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 0.5rem;
+          padding: 0.4rem;
           color: var(--text-muted);
           border-radius: var(--radius-md);
           transition: all 0.2s ease;
@@ -112,44 +126,38 @@ const Header = ({ theme, toggleTheme }) => {
           background-color: var(--primary-light);
         }
 
-        @media (max-width: 640px) {
+        @media (min-width: 1024px) {
           .header-container {
-            flex-direction: column;
-            justify-content: center;
-            gap: 0.55rem;
-            height: auto;
-            min-height: 5.9rem;
-            padding-top: 0.75rem;
-            padding-bottom: 0.7rem;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 1.5rem;
+            height: 4rem;
+            min-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
           }
 
           .logo {
-            justify-content: center;
-            text-align: center;
-            max-width: 100%;
-          }
-
-          .logo svg {
-            flex: 0 0 auto;
+            justify-content: flex-start;
+            text-align: left;
           }
 
           .logo h1 {
-            font-size: 1.05rem;
-            line-height: 1.15;
+            font-size: 1.25rem;
           }
 
           .nav {
-            justify-content: center;
-            gap: 0.9rem;
-            width: 100%;
+            justify-content: flex-end;
+            gap: 1.5rem;
+            width: auto;
           }
 
           .nav a {
-            padding-bottom: 0.2rem;
+            padding-bottom: 0.25rem;
           }
 
           .theme-toggle {
-            padding: 0.4rem;
+            padding: 0.5rem;
           }
         }
       `}</style>
