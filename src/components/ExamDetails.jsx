@@ -347,8 +347,7 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
         }
         .curiosities-panel.open .accordion-content {
           position: relative;
-          overflow-y: auto;
-          overscroll-behavior: contain;
+          overflow: visible;
           scrollbar-width: thin;
           scrollbar-color: var(--primary) rgba(14, 165, 233, 0.08);
           -webkit-overflow-scrolling: touch;
@@ -417,25 +416,9 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
             padding: 0 1rem 1rem;
           }
           .curiosities-panel.open .accordion-content {
-            max-height: min(54dvh, 430px);
-            overflow-y: scroll;
-            touch-action: pan-y;
+            max-height: none;
+            overflow: visible;
             border-top: 1px solid var(--border);
-          }
-          .curiosities-panel.open .accordion-content::after {
-            content: '';
-            position: sticky;
-            right: 0.25rem;
-            bottom: 0.35rem;
-            display: block;
-            width: 3px;
-            height: 2.5rem;
-            margin-left: auto;
-            margin-top: -2.5rem;
-            border-radius: var(--radius-full);
-            background: var(--primary);
-            opacity: 0.55;
-            pointer-events: none;
           }
           .curiosity-list {
             max-height: none;
