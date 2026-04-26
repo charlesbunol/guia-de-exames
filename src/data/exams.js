@@ -1,6 +1,7 @@
 import { expandedExamsData } from './exams_expanded';
 import { expandedExamsData2 } from './exams_expanded_2';
 import { expandedExamsData3 } from './exams_expanded_3';
+import { requestedExamsData } from './exams_requested';
 
 const baseExamsData = [
   {
@@ -598,7 +599,7 @@ const baseExamsData = [
     id: 'baar',
     name: 'Pesquisa de BAAR (Escarro)',
     category: 'Microbiologia',
-    synonyms: ['Baciloscopia do Escarro', 'Pesquisa de Bacilo de Koch', 'Pesquisa de Tuberculose'],
+    synonyms: ['Baciloscopia do Escarro', 'Pesquisa de Bacilo de Koch', 'Pesquisa de Tuberculose', 'Pesquisa de BK', 'BK'],
     related: ['PCR para Tuberculose', 'Cultura de Lavado Bronco-Alveolar'],
     shortDescription: 'Exame de escarro principal para diagnosticar a Tuberculose pulmonar.',
     purpose: 'A sigla BAAR significa "Bacilo Alcool-Ácido Resistente". O exame busca no escarro do paciente a presença do *Mycobacterium tuberculosis* (Bacilo de Koch), a bactéria causadora da Tuberculose.',
@@ -1269,7 +1270,7 @@ const baseExamsData = [
     id: 'ferro-serico',
     name: 'Ferro Sérico',
     category: 'Ferro e Anemia',
-    synonyms: ['Ferremia', 'Ferro no Sangue'],
+    synonyms: ['Ferremia', 'Ferro no Sangue', 'Fe'],
     related: ['Ferritina', 'Capacidade de Ligação do Ferro', 'Transferrina', 'Hemograma'],
     shortDescription: 'A quantidade de ferro circulando solta no seu sangue neste exato momento.',
     purpose: 'Auxilia na montagem do quebra-cabeça do metabolismo de ferro do paciente. Isoladamente tem baixo valor, pois o ferro do sangue varia hora a hora, dependendo do que o paciente almoçou.',
@@ -1686,5 +1687,6 @@ export const examsData = [
   ...baseExamsData,
   ...expandedExamsData,
   ...expandedExamsData2,
-  ...expandedExamsData3
+  ...expandedExamsData3,
+  ...requestedExamsData
 ];
