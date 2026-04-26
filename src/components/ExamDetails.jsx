@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-const AccordionItem = ({ title, children, isOpen, onClick }) => {
+const AccordionItem = ({ title, children, isOpen, onClick, className = '' }) => {
   return (
-    <div className={`accordion-item ${isOpen ? 'open' : ''}`}>
+    <div className={`accordion-item ${className} ${isOpen ? 'open' : ''}`}>
       <button className="accordion-header" onClick={onClick}>
         <span>{title}</span>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="chevron">
@@ -144,6 +144,7 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
             title="Curiosidades" 
             isOpen={openSection === 'curiosities'} 
             onClick={() => toggleSection('curiosities')}
+            className="curiosities-panel"
           >
             <ul className="info-list curiosity-list">
               {exam.curiosities.map((curiosity, idx) => (
@@ -344,6 +345,14 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
           background: var(--primary);
           border-radius: var(--radius-full);
         }
+        .curiosities-panel.open .accordion-content {
+          position: relative;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          scrollbar-width: thin;
+          scrollbar-color: var(--primary) rgba(14, 165, 233, 0.08);
+          -webkit-overflow-scrolling: touch;
+        }
         .accordion-inner {
           padding: 0 1.5rem 1.5rem;
           color: var(--text-muted);
@@ -404,24 +413,34 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
             padding: 1rem;
             font-size: 1rem;
           }
-          .accordion-item.open .accordion-content {
-            max-height: min(62dvh, 520px);
-            overflow-y: auto;
-            overscroll-behavior: contain;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary) rgba(14, 165, 233, 0.08);
-          }
           .accordion-inner {
             padding: 0 1rem 1rem;
           }
-          .curiosity-list {
-            max-height: calc(62dvh - 1rem);
+          .curiosities-panel.open .accordion-content {
+            max-height: min(54dvh, 430px);
             overflow-y: scroll;
-            overscroll-behavior: contain;
+            touch-action: pan-y;
+            border-top: 1px solid var(--border);
+          }
+          .curiosities-panel.open .accordion-content::after {
+            content: '';
+            position: sticky;
+            right: 0.25rem;
+            bottom: 0.35rem;
+            display: block;
+            width: 3px;
+            height: 2.5rem;
+            margin-left: auto;
+            margin-top: -2.5rem;
+            border-radius: var(--radius-full);
+            background: var(--primary);
+            opacity: 0.55;
+            pointer-events: none;
+          }
+          .curiosity-list {
+            max-height: none;
+            overflow: visible;
             padding-right: 0.35rem;
-            scrollbar-gutter: stable;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary) rgba(14, 165, 233, 0.08);
           }
           .curiosity-list li {
             padding: 0.85rem;
