@@ -246,6 +246,11 @@ function AppShell() {
           font-size: 0.75rem;
           color: var(--text-light);
         }
+        @media (max-width: 768px) {
+          .footer {
+            padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+          }
+        }
       `}</style>
       <Mascot />
     </div>

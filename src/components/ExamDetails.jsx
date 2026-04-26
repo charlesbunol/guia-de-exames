@@ -328,7 +328,7 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
           transition: max-height 0.3s ease-out;
         }
         .accordion-item.open .accordion-content {
-          max-height: 500px;
+          max-height: none;
         }
         .accordion-inner {
           padding: 0 1.5rem 1.5rem;
@@ -363,6 +363,39 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
         }
         .emoji {
           font-size: 1.2rem;
+        }
+
+        @media (max-width: 640px) {
+          .details-container {
+            padding-top: 1rem;
+            padding-bottom: 2rem;
+          }
+          .back-btn {
+            margin-bottom: 1rem;
+          }
+          .details-header {
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+          }
+          .details-header h2 {
+            font-size: 1.55rem;
+          }
+          .description {
+            font-size: 1rem;
+          }
+          .accordion-group {
+            gap: 0.75rem;
+          }
+          .accordion-header {
+            padding: 1rem;
+            font-size: 1rem;
+          }
+          .accordion-inner {
+            padding: 0 1rem 1rem;
+          }
+          .curiosity-list li {
+            padding: 0.85rem;
+          }
         }
       `}</style>
     </div>

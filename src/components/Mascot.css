@@ -68,6 +68,9 @@
   border-radius: 16px;
   padding: 15px 20px;
   max-width: 250px;
+  max-height: calc(100dvh - 190px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   box-shadow: var(--shadow-lg);
   pointer-events: auto;
   border: 2px solid var(--primary);
@@ -126,14 +129,23 @@
 
 /* Responsividade para telas menores */
 @media (max-width: 768px) {
+  .mascot-container {
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+
   .mascot-character {
-    width: 90px;
-    height: 90px;
+    width: 58px;
+    height: 58px;
+    opacity: 0.92;
   }
   
   .speech-bubble {
-    bottom: 100px;
-    max-width: 220px;
+    bottom: 68px;
+    right: 0;
+    width: min(280px, calc(100vw - 28px));
+    max-width: none;
+    max-height: calc(100dvh - 98px);
     padding: 12px 15px;
   }
   

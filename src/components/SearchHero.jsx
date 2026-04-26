@@ -4,9 +4,11 @@ const DEBOUNCE_DELAY = 300;
 
 const SearchHero = ({ searchValue = '', onSearch }) => {
   const [searchTerm, setSearchTerm] = useState(searchValue);
+  const [isFocused, setIsFocused] = useState(false);
   const debounceRef = useRef(null);
   const hasTypedRef = useRef(false);
   const skipNextDebounceRef = useRef(false);
+  const isCompact = isFocused || searchTerm.trim().length > 0;
 
   useEffect(() => {
     const syncTimer = window.setTimeout(() => {
@@ -66,7 +68,7 @@ const SearchHero = ({ searchValue = '', onSearch }) => {
   };
 
   return (
-    <div className="hero">
+    <div className={`hero ${isCompact ? 'hero-compact' : ''}`}>
       <div className="hero-bg"></div>
       <div className="container hero-content">
         <h2 className="animate-fade-in">Entenda seus Exames de Saúde</h2>
@@ -85,6 +87,8 @@ const SearchHero = ({ searchValue = '', onSearch }) => {
               placeholder="Ex: Hemograma, Glicemia, Colesterol..." 
               value={searchTerm}
               onChange={handleChange}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
               aria-label="Buscar exames"
             />
             {searchTerm && (
@@ -237,7 +241,26 @@ const SearchHero = ({ searchValue = '', onSearch }) => {
         }
         
         @media (max-width: 640px) {
+          .hero {
+            padding: 2rem 0 1.5rem;
+            transition: padding 0.2s ease;
+          }
           .hero h2 { font-size: 2rem; }
+          .hero-compact {
+            padding: 0.85rem 0;
+            position: sticky;
+            top: 5.9rem;
+            z-index: 9;
+            box-shadow: 0 8px 18px rgb(15 23 42 / 0.08);
+          }
+          .hero-compact h2,
+          .hero-compact .subtitle,
+          .hero-compact .popular-searches {
+            display: none;
+          }
+          .hero-compact .search-form {
+            margin-bottom: 0;
+          }
           .search-input-wrapper { 
             display: grid;
             grid-template-columns: 1fr auto;

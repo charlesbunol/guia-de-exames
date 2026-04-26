@@ -143,6 +143,23 @@ const ResultDashboard = ({ exams, onSelectExam }) => {
         .card:hover .view-btn svg {
           transform: translateX(4px);
         }
+        @media (max-width: 640px) {
+          .dashboard-container {
+            padding-top: 1rem;
+            padding-bottom: 2rem;
+          }
+          .section-title {
+            font-size: 1.15rem;
+            margin-bottom: 0.85rem;
+          }
+          .grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
+          .card {
+            padding: 1rem;
+          }
+        }
       `}</style>
     </div>
   );
