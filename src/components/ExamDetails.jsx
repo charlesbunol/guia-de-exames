@@ -20,9 +20,13 @@ const AccordionItem = ({ title, children, isOpen, onClick, className = '' }) => 
   );
 };
 
-const getWhatsAppShareData = (exam) => {
+const getCanonicalExamUrl = (exam) => {
   const origin = 'https://guiadeexames.vercel.app';
-  const examUrl = `${origin}/exames/${encodeURIComponent(exam.id)}`;
+  return `${origin}/exames/${encodeURIComponent(exam.id)}`;
+};
+
+const getWhatsAppShareData = (exam) => {
+  const examUrl = getCanonicalExamUrl(exam);
   const message = `Olá! Veja as informações e o preparo para o exame *${exam.name}* aqui: ${examUrl}`;
   const encodedMessage = encodeURIComponent(message);
 
@@ -76,6 +80,7 @@ const ExamDetails = ({ exam, relatedExams = [], onBack, onSelectRelated }) => {
 
   const collectionInfo = getCollectionInfo(exam);
   const highlightedPreparation = exam.preparation?.slice(0, 3) || [];
+  const canonicalExamUrl = getCanonicalExamUrl(exam);
   const whatsappShareData = getWhatsAppShareData(exam);
   const visibleRelatedExams = relatedExams.length > 0
     ? relatedExams
@@ -84,6 +89,9 @@ const ExamDetails = ({ exam, relatedExams = [], onBack, onSelectRelated }) => {
   const handleWhatsAppShare = (event) => {
     event.preventDefault();
     openWhatsAppShare(whatsappShareData);
+  };
+  const handlePrintPreparation = () => {
+    window.print();
   };
 
   return (
@@ -101,6 +109,19 @@ const ExamDetails = ({ exam, relatedExams = [], onBack, onSelectRelated }) => {
         </div>
         <h1>{exam.name}</h1>
         <div className="details-actions">
+          <button
+            type="button"
+            className="print-prep-btn"
+            onClick={handlePrintPreparation}
+            aria-label={`Imprimir ou salvar em PDF o preparo de ${exam.name}`}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M6 9V2h12v7"></path>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <path d="M6 14h12v8H6z"></path>
+            </svg>
+            Imprimir / salvar PDF
+          </button>
           <a
             href={whatsappShareData.appUrl}
             className="whatsapp-share"
@@ -314,6 +335,20 @@ const ExamDetails = ({ exam, relatedExams = [], onBack, onSelectRelated }) => {
         )}
       </section>
 
+      <section className="print-preparation-sheet" aria-hidden="true">
+        <p className="print-kicker">Guia de Exames</p>
+        <h1>{exam.name}</h1>
+        <p className="print-category">{exam.category}</p>
+        <h2>Preparo do exame</h2>
+        <ul>
+          {exam.preparation.map((prep, idx) => (
+            <li key={idx}>{prep}</li>
+          ))}
+        </ul>
+        <p className="print-source">Fonte: {canonicalExamUrl}</p>
+        <p className="print-note">Material educativo. Siga sempre a orientação do seu médico e do laboratório.</p>
+      </section>
+
       <style>{`
         .details-container {
           padding-top: 2rem;
@@ -384,6 +419,32 @@ const ExamDetails = ({ exam, relatedExams = [], onBack, onSelectRelated }) => {
         .whatsapp-share:focus-visible {
           outline: 3px solid rgba(22, 163, 74, 0.28);
           outline-offset: 3px;
+        }
+        .print-prep-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          min-height: 2.5rem;
+          background: var(--surface);
+          color: var(--primary-hover);
+          border: 1px solid var(--primary-light);
+          border-radius: var(--radius-full);
+          padding: 0.55rem 0.95rem;
+          font-weight: 700;
+          font-size: 0.92rem;
+          box-shadow: var(--shadow-sm);
+        }
+        .print-prep-btn:hover,
+        .print-prep-btn:focus-visible {
+          background: var(--primary-light);
+          color: var(--primary-hover);
+        }
+        .print-prep-btn:focus-visible {
+          outline: 3px solid rgba(14, 165, 233, 0.28);
+          outline-offset: 3px;
+        }
+        .print-preparation-sheet {
+          display: none;
         }
         .synonyms {
           color: var(--primary);
@@ -676,6 +737,10 @@ const ExamDetails = ({ exam, relatedExams = [], onBack, onSelectRelated }) => {
             width: 100%;
             justify-content: center;
           }
+          .print-prep-btn {
+            width: 100%;
+            justify-content: center;
+          }
           .description {
             font-size: 1rem;
           }
@@ -706,6 +771,77 @@ const ExamDetails = ({ exam, relatedExams = [], onBack, onSelectRelated }) => {
           }
           .curiosity-list li {
             padding: 0.85rem;
+          }
+        }
+
+        @media print {
+          @page {
+            margin: 16mm;
+          }
+
+          body * {
+            visibility: hidden !important;
+          }
+
+          .print-preparation-sheet,
+          .print-preparation-sheet * {
+            visibility: visible !important;
+          }
+
+          .print-preparation-sheet {
+            display: block !important;
+            position: fixed;
+            inset: 0;
+            padding: 0;
+            color: #111827;
+            background: #fff;
+            font-family: Inter, Arial, sans-serif;
+          }
+
+          .print-preparation-sheet .print-kicker {
+            color: #0369a1;
+            font-size: 11pt;
+            font-weight: 700;
+            margin: 0 0 8pt;
+            text-transform: uppercase;
+            letter-spacing: 0;
+          }
+
+          .print-preparation-sheet h1 {
+            font-size: 22pt;
+            line-height: 1.15;
+            margin: 0 0 4pt;
+          }
+
+          .print-preparation-sheet .print-category {
+            color: #475569;
+            font-size: 11pt;
+            margin: 0 0 18pt;
+          }
+
+          .print-preparation-sheet h2 {
+            font-size: 15pt;
+            margin: 0 0 10pt;
+            padding-bottom: 6pt;
+            border-bottom: 1pt solid #d1d5db;
+          }
+
+          .print-preparation-sheet ul {
+            margin: 0 0 18pt 18pt;
+            padding: 0;
+          }
+
+          .print-preparation-sheet li {
+            font-size: 12pt;
+            line-height: 1.45;
+            margin-bottom: 8pt;
+          }
+
+          .print-preparation-sheet .print-source,
+          .print-preparation-sheet .print-note {
+            color: #475569;
+            font-size: 9.5pt;
+            margin: 0 0 6pt;
           }
         }
       `}</style>

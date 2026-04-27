@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const DEBOUNCE_DELAY = 300;
 
-const SearchHero = ({ searchValue = '', onSearch }) => {
+const SearchHero = ({ searchValue = '', quickFilters = [], onSearch }) => {
   const [searchTerm, setSearchTerm] = useState(searchValue);
   const [isFocused, setIsFocused] = useState(false);
   const debounceRef = useRef(null);
@@ -117,6 +117,24 @@ const SearchHero = ({ searchValue = '', onSearch }) => {
           <button onClick={() => handleQuickSearch('Anti-TPO')}>Anti-TPO</button>
           <button onClick={() => handleQuickSearch('Ionograma')}>Ionograma</button>
         </div>
+
+        {quickFilters.length > 0 && (
+          <div className="quick-filters animate-fade-in" style={{ animationDelay: '0.35s' }} aria-label="Filtros rápidos por categoria">
+            <span>Filtros rápidos:</span>
+            <div className="quick-filter-list">
+              {quickFilters.map(filter => (
+                <button
+                  key={filter}
+                  type="button"
+                  className={searchTerm.trim() === filter ? 'active' : ''}
+                  onClick={() => handleQuickSearch(filter)}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       
       <style>{`
@@ -242,6 +260,44 @@ const SearchHero = ({ searchValue = '', onSearch }) => {
         .popular-searches button:hover {
           background: rgba(14, 165, 233, 0.2);
         }
+        .quick-filters {
+          width: 100%;
+          max-width: 760px;
+          margin-top: 1rem;
+          display: grid;
+          gap: 0.65rem;
+          justify-items: center;
+        }
+        .quick-filters > span {
+          color: #0f172a;
+          font-size: 0.95rem;
+          font-weight: 700;
+        }
+        .quick-filter-list {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 0.55rem;
+        }
+        .quick-filter-list button {
+          min-height: 2.15rem;
+          padding: 0.4rem 0.85rem;
+          border: 1px solid rgba(14, 165, 233, 0.25);
+          border-radius: var(--radius-full);
+          background: rgba(255, 255, 255, 0.76);
+          color: #075985;
+          font-size: 0.86rem;
+          font-weight: 700;
+          box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+          transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .quick-filter-list button:hover,
+        .quick-filter-list button:focus-visible,
+        .quick-filter-list button.active {
+          background: #fff;
+          border-color: var(--primary);
+          transform: translateY(-1px);
+        }
         
         @media (max-width: 640px) {
           .hero {
@@ -258,7 +314,8 @@ const SearchHero = ({ searchValue = '', onSearch }) => {
           }
           .hero-compact h1,
           .hero-compact .subtitle,
-          .hero-compact .popular-searches {
+          .hero-compact .popular-searches,
+          .hero-compact .quick-filters {
             display: none;
           }
           .hero-compact .search-form {

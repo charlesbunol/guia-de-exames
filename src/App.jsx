@@ -44,6 +44,7 @@ const normalizedEquals = (source, term) => (
 const getExamSearchText = (exam) => normalizeText([
   exam.id,
   exam.name,
+  exam.category,
   exam.shortDescription,
   exam.purpose,
   exam.methodology,
@@ -89,6 +90,16 @@ const findRelatedExam = (name) => {
 
 const getExamPath = (examId) => `/exames/${encodeURIComponent(examId)}`;
 
+const quickCategoryFilters = [
+  'Sangue',
+  'Urina',
+  'Hormônios',
+  'Bioquímica',
+  'Coagulação',
+  'Tireoide',
+  'Marcadores Tumorais',
+];
+
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -117,7 +128,11 @@ function HomePage() {
 
   return (
     <>
-      <SearchHero searchValue={query} onSearch={handleSearch} />
+      <SearchHero
+        searchValue={query}
+        quickFilters={quickCategoryFilters}
+        onSearch={handleSearch}
+      />
       <ResultDashboard exams={searchResults} onSelectExam={handleSelectExam} />
     </>
   );
