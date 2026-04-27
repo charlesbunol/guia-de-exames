@@ -21,9 +21,7 @@ const AccordionItem = ({ title, children, isOpen, onClick, className = '' }) => 
 };
 
 const getWhatsAppShareData = (exam) => {
-  const fallbackOrigin = 'https://guiadeexames.vercel.app';
-  const isLocal = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
-  const origin = typeof window !== 'undefined' && !isLocal ? window.location.origin : fallbackOrigin;
+  const origin = 'https://guiadeexames.vercel.app';
   const examUrl = `${origin}/exames/${encodeURIComponent(exam.id)}`;
   const message = `Olá! Veja as informações e o preparo para o exame *${exam.name}* aqui: ${examUrl}`;
   const encodedMessage = encodeURIComponent(message);
