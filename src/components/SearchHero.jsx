@@ -71,7 +71,7 @@ const SearchHero = ({ searchValue = '', onSearch }) => {
     <div className={`hero ${isCompact ? 'hero-compact' : ''}`}>
       <div className="hero-bg"></div>
       <div className="container hero-content">
-        <h2 className="animate-fade-in">Entenda seus Exames de Saúde</h2>
+        <h1 className="animate-fade-in">Entenda seus Exames de Saúde</h1>
         <p className="subtitle animate-fade-in" style={{ animationDelay: '0.1s' }}>
           Pesquise exames laboratoriais, descubra para que servem e saiba como se preparar.
         </p>
@@ -113,6 +113,9 @@ const SearchHero = ({ searchValue = '', onSearch }) => {
           <span>Buscas populares:</span>
           <button onClick={() => handleQuickSearch('Hemograma')}>Hemograma</button>
           <button onClick={() => handleQuickSearch('Glicemia')}>Glicemia</button>
+          <button onClick={() => handleQuickSearch('TSH')}>TSH</button>
+          <button onClick={() => handleQuickSearch('Anti-TPO')}>Anti-TPO</button>
+          <button onClick={() => handleQuickSearch('Ionograma')}>Ionograma</button>
         </div>
       </div>
       
@@ -140,7 +143,7 @@ const SearchHero = ({ searchValue = '', onSearch }) => {
           align-items: center;
           text-align: center;
         }
-        .hero h2 {
+        .hero h1 {
           font-size: 2.5rem;
           color: #0f172a; /* Forçado escuro devido ao gradiente claro */
           margin-bottom: 1rem;
@@ -245,7 +248,7 @@ const SearchHero = ({ searchValue = '', onSearch }) => {
             padding: 2rem 0 1.5rem;
             transition: padding 0.2s ease;
           }
-          .hero h2 { font-size: 2rem; }
+          .hero h1 { font-size: 2rem; }
           .hero-compact {
             padding: 0.85rem 0;
             position: sticky;
@@ -253,7 +256,7 @@ const SearchHero = ({ searchValue = '', onSearch }) => {
             z-index: 9;
             box-shadow: 0 8px 18px rgb(15 23 42 / 0.08);
           }
-          .hero-compact h2,
+          .hero-compact h1,
           .hero-compact .subtitle,
           .hero-compact .popular-searches {
             display: none;

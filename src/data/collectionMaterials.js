@@ -360,6 +360,21 @@ const materialProfiles = {
     sourceLabel: collectionSources.fleuryGeneral,
     sourceUrl: sourceUrls.fleuryGeneral,
   },
+  homaPanel: {
+    material: 'Glicose e insulina de jejum',
+    container: 'Glicose: tubo com fluoreto/oxalato ou rotina aceita pela unidade. Insulina: geralmente soro em tubo seco com gel separador.',
+    fleuryNote: 'O índice HOMA é calculado a partir de glicose e insulina; por isso pode envolver materiais diferentes para cada componente.',
+    alternatives: [
+      'Alguns laboratórios dosam glicose em soro quando o cadastro local permite.',
+      'Seguir o pedido e o cadastro da unidade para glicose e insulina coletadas no mesmo horário.'
+    ],
+    handling: [
+      'Garantir jejum e coleta simultânea dos componentes.',
+      'Processar glicose sem atraso para evitar consumo celular.'
+    ],
+    sourceLabel: collectionSources.fleuryGeneral,
+    sourceUrl: sourceUrls.fleuryGeneral,
+  },
   ppdIgra: {
     material: 'PPD: não usa tubo de coleta. IGRA: sangue total em tubos próprios do ensaio.',
     container: 'PPD é aplicação intradérmica; IGRA usa kit/tubos específicos fornecidos pelo laboratório.',
@@ -410,6 +425,18 @@ const profileByExamId = {
   lactato: materialProfiles.lactate,
   'gasometria-arterial': materialProfiles.bloodGasArterial,
   'gasometria-venosa': materialProfiles.bloodGasVenous,
+  ionograma: materialProfiles.serumOrPlasma,
+  'homa-ir-beta': materialProfiles.homaPanel,
+  'ldh-dhl': materialProfiles.serumOrPlasma,
+  fosforo: materialProfiles.serumOrPlasma,
+  'anti-tpo': materialProfiles.serum,
+  'anti-tireoglobulina': materialProfiles.serum,
+  shbg: materialProfiles.serum,
+  serotonina: materialProfiles.serumOrPlasma,
+  ca153: materialProfiles.serum,
+  ca199: materialProfiles.serum,
+  fibrinogenio: materialProfiles.citrate,
+  'complemento-c3-c4': materialProfiles.serum,
   'vitamina-a': materialProfiles.vitaminProtected,
   'vitamina-b1': materialProfiles.edta,
   'vitamina-b2': materialProfiles.vitaminProtected,

@@ -17,26 +17,53 @@ import About from './components/About';
 import { Mascot } from './components/Mascot';
 import { examsData } from './data/exams';
 
+const normalizeText = (value = '') => (
+  String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[./_+-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+);
+
+const compactText = (value = '') => normalizeText(value).replace(/\s/g, '');
+const normalizedIncludes = (source, term) => (
+  source.includes(term) || compactText(source).includes(compactText(term))
+);
+const normalizedMatches = (source, term) => {
+  if (normalizedIncludes(source, term)) return true;
+
+  const tokens = term.split(' ').filter(token => token.length > 1);
+  return tokens.length > 1 && tokens.every(token => normalizedIncludes(source, token));
+};
+const normalizedEquals = (source, term) => (
+  normalizeText(source) === term || compactText(source) === compactText(term)
+);
+
+const getExamSearchText = (exam) => normalizeText([
+  exam.id,
+  exam.name,
+  exam.shortDescription,
+  exam.purpose,
+  exam.methodology,
+  ...(exam.related || []),
+  ...(exam.synonyms || []),
+  ...(exam.components || []),
+].filter(Boolean).join(' '));
+
 const filterExams = (term) => {
-  const termLower = term.trim().toLowerCase();
+  const termLower = normalizeText(term);
 
   if (!termLower) {
     return examsData;
   }
 
-  return examsData.filter(exam =>
-    exam.name.toLowerCase().includes(termLower) ||
-    exam.shortDescription.toLowerCase().includes(termLower) ||
-    (exam.purpose && exam.purpose.toLowerCase().includes(termLower)) ||
-    (exam.methodology && exam.methodology.toLowerCase().includes(termLower)) ||
-    exam.related.some(r => r.toLowerCase().includes(termLower)) ||
-    (exam.synonyms && exam.synonyms.some(s => s.toLowerCase().includes(termLower))) ||
-    (exam.components && exam.components.some(c => c.toLowerCase().includes(termLower)))
-  ).sort((a, b) => {
-    const aName = a.name.toLowerCase();
-    const bName = b.name.toLowerCase();
-    const exactA = aName === termLower || a.id === termLower || (a.synonyms && a.synonyms.some(s => s.toLowerCase() === termLower));
-    const exactB = bName === termLower || b.id === termLower || (b.synonyms && b.synonyms.some(s => s.toLowerCase() === termLower));
+  return examsData.filter(exam => normalizedMatches(getExamSearchText(exam), termLower)).sort((a, b) => {
+    const aName = normalizeText(a.name);
+    const bName = normalizeText(b.name);
+    const exactA = normalizedEquals(a.name, termLower) || normalizedEquals(a.id, termLower) || (a.synonyms && a.synonyms.some(s => normalizedEquals(s, termLower)));
+    const exactB = normalizedEquals(b.name, termLower) || normalizedEquals(b.id, termLower) || (b.synonyms && b.synonyms.some(s => normalizedEquals(s, termLower)));
     if (exactA && !exactB) return -1;
     if (!exactA && exactB) return 1;
 
@@ -50,12 +77,13 @@ const filterExams = (term) => {
 };
 
 const findRelatedExam = (name) => {
-  const termLower = name.toLowerCase();
+  const termLower = normalizeText(name);
 
   return examsData.find(e =>
-    e.name.toLowerCase().includes(termLower) ||
-    e.id === termLower ||
-    termLower.includes(e.id)
+    normalizedIncludes(normalizeText(e.name), termLower) ||
+    normalizedEquals(e.id, termLower) ||
+    normalizedIncludes(termLower, normalizeText(e.id)) ||
+    (e.synonyms && e.synonyms.some(s => normalizedIncludes(normalizeText(s), termLower) || normalizedIncludes(termLower, normalizeText(s))))
   );
 };
 
@@ -104,6 +132,19 @@ function ExamDetailsPage() {
     return examsData.find(item => item.id === examId);
   }, [examId]);
 
+  const relatedExamLinks = useMemo(() => {
+    if (!exam?.related) return [];
+
+    return exam.related.map(name => {
+      const foundExam = findRelatedExam(name);
+
+      return {
+        name,
+        path: foundExam ? getExamPath(foundExam.id) : null,
+      };
+    });
+  }, [exam]);
+
   const handleBack = useCallback(() => {
     if (location.key !== 'default') {
       navigate(-1);
@@ -131,6 +172,7 @@ function ExamDetailsPage() {
   return (
     <ExamDetails
       exam={exam}
+      relatedExams={relatedExamLinks}
       onBack={handleBack}
       onSelectRelated={handleSelectRelated}
     />

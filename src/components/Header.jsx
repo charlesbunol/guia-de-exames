@@ -8,7 +8,7 @@ const Header = ({ theme, toggleTheme }) => {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
             <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
           </svg>
-          <h1>Guia de Exames do <span>Gato de Botas</span></h1>
+          <span className="logo-title">Guia de Exames do <span>Gato de Botas</span></span>
         </Link>
         <nav className="nav">
           <NavLink
@@ -81,11 +81,12 @@ const Header = ({ theme, toggleTheme }) => {
         .logo svg {
           flex: 0 0 auto;
         }
-        .logo h1 {
+        .logo-title {
           font-size: 1.05rem;
           line-height: 1.15;
           margin: 0;
           color: var(--text-main);
+          font-weight: 600;
         }
         .logo span {
           color: var(--primary);
@@ -142,7 +143,7 @@ const Header = ({ theme, toggleTheme }) => {
             text-align: left;
           }
 
-          .logo h1 {
+          .logo-title {
             font-size: 1.25rem;
           }
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getCollectionInfo } from '../data/collectionMaterials';
 
 const AccordionItem = ({ title, children, isOpen, onClick, className = '' }) => {
@@ -19,9 +20,55 @@ const AccordionItem = ({ title, children, isOpen, onClick, className = '' }) => 
   );
 };
 
-const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
+const getWhatsAppShareData = (exam) => {
+  const fallbackOrigin = 'https://guiadeexames.vercel.app';
+  const isLocal = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const origin = typeof window !== 'undefined' && !isLocal ? window.location.origin : fallbackOrigin;
+  const examUrl = `${origin}/exames/${encodeURIComponent(exam.id)}`;
+  const message = `Olá! Veja as informações e o preparo para o exame *${exam.name}* aqui: ${examUrl}`;
+  const encodedMessage = encodeURIComponent(message);
+
+  return {
+    appUrl: `whatsapp://send?text=${encodedMessage}`,
+    webUrl: `https://wa.me/?text=${encodedMessage}`,
+  };
+};
+
+const openWhatsAppShare = ({ appUrl, webUrl }) => {
+  if (typeof window === 'undefined') return;
+
+  let didLeavePage = false;
+
+  const markAsOpened = () => {
+    didLeavePage = true;
+  };
+  const markAsHidden = () => {
+    if (document.visibilityState === 'hidden') {
+      didLeavePage = true;
+    }
+  };
+  const cleanup = () => {
+    window.removeEventListener('blur', markAsOpened);
+    window.removeEventListener('pagehide', markAsOpened);
+    document.removeEventListener('visibilitychange', markAsHidden);
+  };
+
+  window.addEventListener('blur', markAsOpened);
+  window.addEventListener('pagehide', markAsOpened);
+  document.addEventListener('visibilitychange', markAsHidden);
+  window.location.href = appUrl;
+
+  window.setTimeout(() => {
+    cleanup();
+
+    if (!didLeavePage && document.visibilityState !== 'hidden') {
+      window.open(webUrl, '_blank', 'noopener,noreferrer');
+    }
+  }, 2200);
+};
+
+const ExamDetails = ({ exam, relatedExams = [], onBack, onSelectRelated }) => {
   const [openSection, setOpenSection] = useState('purpose');
-  const collectionInfo = getCollectionInfo(exam);
 
   const toggleSection = (section) => {
     setOpenSection(openSection === section ? null : section);
@@ -29,8 +76,20 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
 
   if (!exam) return null;
 
+  const collectionInfo = getCollectionInfo(exam);
+  const highlightedPreparation = exam.preparation?.slice(0, 3) || [];
+  const whatsappShareData = getWhatsAppShareData(exam);
+  const visibleRelatedExams = relatedExams.length > 0
+    ? relatedExams
+    : (exam.related || []).map(name => ({ name, path: null }));
+
+  const handleWhatsAppShare = (event) => {
+    event.preventDefault();
+    openWhatsAppShare(whatsappShareData);
+  };
+
   return (
-    <div className="details-container container animate-fade-in">
+    <article className="details-container container animate-fade-in">
       <button className="back-btn" onClick={onBack}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -38,11 +97,26 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
         Voltar para resultados
       </button>
 
-      <div className="details-header">
+      <header className="details-header">
         <div className="badge-group">
           <span className="category-badge">{exam.category}</span>
         </div>
-        <h2>{exam.name}</h2>
+        <h1>{exam.name}</h1>
+        <div className="details-actions">
+          <a
+            href={whatsappShareData.appUrl}
+            className="whatsapp-share"
+            onClick={handleWhatsAppShare}
+            aria-label={`Enviar informações de ${exam.name} pelo WhatsApp`}
+            title="Abrir no aplicativo do WhatsApp. Se o app não responder, abre a versão web."
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.6-5.3A8.4 8.4 0 1 1 21 11.5Z"></path>
+              <path d="M9.2 8.3c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.4l.7 1.7c.1.2.1.4-.1.6l-.5.6c.6 1 1.4 1.8 2.5 2.4l.7-.5c.2-.1.4-.2.6-.1l1.6.8c.3.1.4.3.4.6v.5c0 .3-.1.6-.4.8-.4.3-1 .5-1.7.4-3.1-.5-5.7-3-6.2-6.1-.1-.7.1-1.3.3-1.7Z"></path>
+            </svg>
+            Enviar pelo WhatsApp
+          </a>
+        </div>
         {exam.synonyms && exam.synonyms.length > 0 && (
           <p className="synonyms">
             <strong>Também conhecido como:</strong> {exam.synonyms.join(', ')}
@@ -54,37 +128,68 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
           </div>
         )}
         <p className="description">{exam.shortDescription}</p>
+
+        {highlightedPreparation.length > 0 && (
+          <section className="preparation-highlight" aria-labelledby="preparation-highlight-title">
+            <div className="preparation-highlight-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 3v18"></path>
+                <path d="M5 8h14"></path>
+                <path d="M7 13h10"></path>
+                <path d="M9 18h6"></path>
+              </svg>
+              <h2 id="preparation-highlight-title">Preparo em destaque</h2>
+            </div>
+            <ul>
+              {highlightedPreparation.map((prep, idx) => (
+                <li key={idx}>{prep}</li>
+              ))}
+            </ul>
+            {exam.preparation.length > highlightedPreparation.length && (
+              <button className="prep-more-btn" type="button" onClick={() => setOpenSection('preparation')}>
+                Ver preparo completo
+              </button>
+            )}
+          </section>
+        )}
         
         {exam.referenceValues && exam.referenceValues.length > 0 && (
-          <div className="reference-values">
+          <section className="reference-values">
             <h4>Valores de Referência</h4>
             <ul>
               {exam.referenceValues.map((val, idx) => (
                 <li key={idx}>{val}</li>
               ))}
             </ul>
-          </div>
+          </section>
         )}
         
         {exam.related && exam.related.length > 0 && (
           <div className="related-exams">
             <span>Relacionados:</span>
             <div className="tags">
-              {exam.related.map(r => (
-                <span 
-                  key={r} 
-                  className="tag clickable" 
-                  onClick={() => onSelectRelated && onSelectRelated(r)}
-                >
-                  {r}
-                </span>
+              {visibleRelatedExams.map(related => (
+                related.path ? (
+                  <Link key={related.name} className="tag clickable" to={related.path}>
+                    {related.name}
+                  </Link>
+                ) : (
+                  <button
+                    key={related.name}
+                    type="button"
+                    className="tag clickable"
+                    onClick={() => onSelectRelated && onSelectRelated(related.name)}
+                  >
+                    {related.name}
+                  </button>
+                )
               ))}
             </div>
           </div>
         )}
-      </div>
+      </header>
 
-      <div className="accordion-group">
+      <section className="accordion-group" aria-label="Detalhes do exame">
         <AccordionItem 
           title="Para que serve?" 
           isOpen={openSection === 'purpose'} 
@@ -209,7 +314,7 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
             </ul>
           </AccordionItem>
         )}
-      </div>
+      </section>
 
       <style>{`
         .details-container {
@@ -249,10 +354,38 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
           padding: 0.25rem 0.75rem;
           border-radius: var(--radius-full);
         }
-        .details-header h2 {
+        .details-header h1 {
           font-size: 2rem;
           color: var(--text-main);
+          margin-bottom: 0.75rem;
+        }
+        .details-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
           margin-bottom: 1rem;
+        }
+        .whatsapp-share {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          min-height: 2.5rem;
+          background: #16a34a;
+          color: #fff;
+          border-radius: var(--radius-full);
+          padding: 0.55rem 0.95rem;
+          font-weight: 700;
+          font-size: 0.92rem;
+          box-shadow: 0 10px 20px rgba(22, 163, 74, 0.18);
+        }
+        .whatsapp-share:hover,
+        .whatsapp-share:focus-visible {
+          background: #15803d;
+          color: #fff;
+        }
+        .whatsapp-share:focus-visible {
+          outline: 3px solid rgba(22, 163, 74, 0.28);
+          outline-offset: 3px;
         }
         .synonyms {
           color: var(--primary);
@@ -276,6 +409,56 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
           color: var(--text-muted);
           font-size: 1.1rem;
           margin-bottom: 1.5rem;
+        }
+        .preparation-highlight {
+          background: rgba(16, 185, 129, 0.08);
+          border: 1px solid rgba(16, 185, 129, 0.22);
+          border-left: 4px solid var(--secondary);
+          border-radius: var(--radius-md);
+          padding: 1rem 1.15rem;
+          margin-bottom: 1.5rem;
+        }
+        .preparation-highlight-title {
+          display: flex;
+          align-items: center;
+          gap: 0.55rem;
+          color: #047857;
+          margin-bottom: 0.75rem;
+        }
+        .preparation-highlight-title h2 {
+          font-size: 1rem;
+          margin: 0;
+        }
+        .preparation-highlight ul {
+          list-style: none;
+          display: grid;
+          gap: 0.55rem;
+          padding: 0;
+          margin: 0;
+        }
+        .preparation-highlight li {
+          color: var(--text-main);
+          font-size: 0.94rem;
+          padding-left: 1.2rem;
+          position: relative;
+        }
+        .preparation-highlight li::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 0.62rem;
+          width: 0.42rem;
+          height: 0.42rem;
+          border-radius: 50%;
+          background: var(--secondary);
+        }
+        .prep-more-btn {
+          color: #047857;
+          font-weight: 700;
+          margin-top: 0.85rem;
+        }
+        .prep-more-btn:hover {
+          color: #065f46;
         }
         .reference-values {
           background: var(--background);
@@ -488,8 +671,12 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
             padding: 1.25rem;
             margin-bottom: 1rem;
           }
-          .details-header h2 {
+          .details-header h1 {
             font-size: 1.55rem;
+          }
+          .whatsapp-share {
+            width: 100%;
+            justify-content: center;
           }
           .description {
             font-size: 1rem;
@@ -524,7 +711,7 @@ const ExamDetails = ({ exam, onBack, onSelectRelated }) => {
           }
         }
       `}</style>
-    </div>
+    </article>
   );
 };
 
