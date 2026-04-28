@@ -202,7 +202,7 @@ export const expandedExamsData2 = [
     name: "Sorologias para Hepatites Virais (A, B e C)",
     category: "Infecciosas",
     shortDescription: "Painel completo de exames para identificar infecção atual ou imunidade contra os vírus que atacam o fígado.",
-    purpose: "Hepatite A (Anti-HAV Total/IgM), Hepatite B (HBsAg, Anti-HBs, Anti-HBc) e Hepatite C (Anti-HCV). Investigam desde infecção silenciosa até resposta a vacinas.",
+    purpose: "Hepatite A (Anti-HAV Total/IgM/IgG), Hepatite B (HBsAg, Anti-HBs, Anti-HBc total/IgM, HBeAg, Anti-HBe) e Hepatite C (Anti-HCV). Investigam desde infecção silenciosa até resposta a vacinas.",
     methodology: "Eletroquimioluminescência ou Quimioluminescência.",
     preparation: [
       "Jejum de 4 a 8 horas."
@@ -214,7 +214,7 @@ export const expandedExamsData2 = [
     ],
     interactions: [],
     related: ["tgo-ast", "tgp-alt", "bilirrubinas", "gama-gt"],
-    synonyms: ["HbsAg", "Anti-HBs", "aHBs", "Anti-HCV", "Hepatite A", "Hepatite B", "Hepatite C", "Painel de Hepatite"],
+    synonyms: ["HbsAg", "Anti-HBs", "aHBs", "Anti-HBc", "Anti-HBc total", "HBc IgM", "HBeAg", "Anti-HBe", "Anti-HAV IgM", "Anti-HAV IgG", "Anti-HAV total", "Anti-HCV", "Hepatite A", "Hepatite B", "Hepatite C", "Painel de Hepatite"],
     curiosities: [
       "O vírus da Hepatite C é um mestre dos disfarces; ele sofre tantas mutações que o corpo não consegue criar uma vacina eficaz contra ele. Em compensação, hoje em dia, ele tem 95% de chance de CURA com antivirais tomados por via oral!"
     ]
