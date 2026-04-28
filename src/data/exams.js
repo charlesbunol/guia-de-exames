@@ -107,7 +107,7 @@ const baseExamsData = [
     id: 'perfil-lipidico',
     name: 'Perfil Lipídico (Colesterol)',
     category: 'Sangue',
-    synonyms: ['Lipidograma', 'Colesterol Total e Frações', 'Exame de Colesterol'],
+    synonyms: ['Lipidograma', 'Colesterol Total e Frações', 'Colesterol Total e Fracoes', 'Colesterol Total e Fraçoe', 'Colesterol Toal e Fraçoe', 'Colesterol Toal e Fracoe', 'Exame de Colesterol'],
     components: ['Colesterol Total', 'HDL', 'LDL', 'VLDL', 'Triglicerídeos', 'Não-HDL'],
     related: ['Glicemia', 'TGO', 'TGP'],
     shortDescription: 'Mede os níveis de colesterol e triglicerídeos, ajudando a avaliar o risco cardiovascular.',
@@ -136,6 +136,147 @@ const baseExamsData = [
       'Cerca de 70% a 80% do colesterol circulante no corpo é produzido pelo nosso próprio fígado, e não vindo diretamente da alimentação.',
       'O HDL é chamado de "bom colesterol" porque age como um faxineiro, retirando o excesso de colesterol das artérias e levando de volta ao fígado para ser excretado.',
       'Estudos mostram que rir e ter emoções positivas frequentes pode ajudar a aumentar os níveis do bom colesterol (HDL) no sangue.'
+    ]
+  },
+  {
+    id: 'colesterol-total',
+    name: 'Colesterol Total',
+    category: 'Bioquímica / Perfil Lipídico',
+    synonyms: ['Colesterol', 'Dosagem de colesterol total', 'CT'],
+    related: ['Perfil Lipídico (Colesterol)', 'HDL Colesterol', 'LDL Colesterol', 'Triglicerídeos'],
+    shortDescription: 'Dosagem isolada do colesterol total no sangue.',
+    purpose: 'Avalia a soma das principais frações de colesterol circulantes e auxilia na estimativa de risco cardiovascular junto de HDL, LDL, VLDL e triglicerídeos.',
+    referenceValues: [
+      'Desejável em adultos: geralmente abaixo de 190 mg/dL, conforme diretriz e risco cardiovascular.'
+    ],
+    methodology: 'Método enzimático colorimétrico automatizado em soro ou plasma, conforme rotina do laboratório.',
+    preparation: [
+      'Jejum geralmente não é obrigatório para colesterol total isolado.',
+      'Manter dieta habitual nos dias anteriores.',
+      'Confirmar com o laboratório se o pedido médico exige jejum.'
+    ],
+    interactions: [
+      'Estatinas, fibratos e outros hipolipemiantes reduzem o colesterol.',
+      'Gestação, hipotireoidismo, síndrome nefrótica e alguns medicamentos podem elevar o resultado.'
+    ],
+    curiosities: [
+      'O colesterol total sozinho não separa frações boas e ruins; por isso costuma ser interpretado junto do HDL, LDL e triglicerídeos.'
+    ]
+  },
+  {
+    id: 'hdl-colesterol',
+    name: 'HDL Colesterol',
+    category: 'Bioquímica / Perfil Lipídico',
+    synonyms: ['HDL', 'Colesterol HDL', 'HDL-C', 'High Density Lipoprotein'],
+    related: ['Perfil Lipídico (Colesterol)', 'Colesterol Total', 'LDL Colesterol', 'Triglicerídeos'],
+    shortDescription: 'Dosagem isolada da fração HDL, conhecida como colesterol bom.',
+    purpose: 'Ajuda na avaliação de risco cardiovascular, pois o HDL participa do transporte reverso de colesterol.',
+    referenceValues: [
+      'Em adultos, valores mais altos tendem a ser melhores; muitos laboratórios usam desejável acima de 40 mg/dL.'
+    ],
+    methodology: 'Método enzimático homogêneo/colorimétrico em soro ou plasma.',
+    preparation: [
+      'Jejum geralmente não é obrigatório.',
+      'Manter rotina alimentar habitual antes da coleta, salvo orientação médica.'
+    ],
+    interactions: [
+      'Exercício, tabagismo, álcool, hormônios e alguns medicamentos podem alterar HDL.'
+    ],
+    curiosities: [
+      'HDL é chamado de colesterol bom porque participa da remoção de colesterol dos tecidos para o fígado.'
+    ]
+  },
+  {
+    id: 'ldl-colesterol',
+    name: 'LDL Colesterol',
+    category: 'Bioquímica / Perfil Lipídico',
+    synonyms: ['LDL', 'Colesterol LDL', 'LDL-C', 'Low Density Lipoprotein'],
+    related: ['Perfil Lipídico (Colesterol)', 'Colesterol Total', 'HDL Colesterol', 'Triglicerídeos'],
+    shortDescription: 'Dosagem ou cálculo da fração LDL, associada ao risco aterosclerótico.',
+    purpose: 'É uma das principais metas no acompanhamento de risco cardiovascular e tratamento com hipolipemiantes.',
+    referenceValues: [
+      'A meta depende do risco cardiovascular individual; pacientes de alto risco podem precisar de LDL muito mais baixo.'
+    ],
+    methodology: 'Pode ser calculado por fórmula ou dosado por método direto, conforme triglicerídeos e rotina do laboratório.',
+    preparation: [
+      'Jejum geralmente não é obrigatório quando o laboratório usa métodos aceitos para perfil lipídico sem jejum.',
+      'Confirmar jejum se triglicerídeos anteriores foram muito altos ou se o médico solicitou expressamente.'
+    ],
+    interactions: [
+      'Estatinas, ezetimiba, inibidores de PCSK9, dieta e perda de peso podem reduzir LDL.'
+    ],
+    curiosities: [
+      'LDL transporta colesterol do fígado para os tecidos; em excesso, favorece placas nas artérias.'
+    ]
+  },
+  {
+    id: 'vldl-colesterol',
+    name: 'VLDL Colesterol',
+    category: 'Bioquímica / Perfil Lipídico',
+    synonyms: ['VLDL', 'Colesterol VLDL', 'VLDL-C', 'Very Low Density Lipoprotein'],
+    related: ['Perfil Lipídico (Colesterol)', 'Triglicerídeos', 'Colesterol Total'],
+    shortDescription: 'Estimativa ou dosagem da fração VLDL, ligada ao transporte de triglicerídeos.',
+    purpose: 'Complementa a avaliação do metabolismo lipídico, especialmente quando há hipertrigliceridemia.',
+    referenceValues: [
+      'Valores de referência variam conforme método e forma de cálculo adotada pelo laboratório.'
+    ],
+    methodology: 'Frequentemente calculado a partir dos triglicerídeos; alguns laboratórios podem usar método direto.',
+    preparation: [
+      'Seguir a orientação do laboratório para perfil lipídico ou triglicerídeos.',
+      'Jejum pode ser solicitado quando triglicerídeos estão muito elevados ou por orientação médica.'
+    ],
+    interactions: [
+      'Álcool, dieta rica em carboidratos, diabetes descompensado e alguns medicamentos podem elevar VLDL/triglicerídeos.'
+    ],
+    curiosities: [
+      'O VLDL carrega triglicerídeos produzidos pelo fígado e costuma acompanhar alterações dos triglicerídeos.'
+    ]
+  },
+  {
+    id: 'colesterol-nao-hdl',
+    name: 'Colesterol Não-HDL',
+    category: 'Bioquímica / Perfil Lipídico',
+    synonyms: ['Não-HDL', 'Nao HDL', 'Colesterol não HDL', 'Colesterol nao HDL', 'Non-HDL'],
+    related: ['Perfil Lipídico (Colesterol)', 'Colesterol Total', 'HDL Colesterol'],
+    shortDescription: 'Cálculo do colesterol total menos o HDL.',
+    purpose: 'Estima o conjunto das partículas aterogênicas e pode ser útil quando triglicerídeos estão elevados.',
+    referenceValues: [
+      'A meta depende do risco cardiovascular e costuma acompanhar metas de LDL com margem adicional.'
+    ],
+    methodology: 'Cálculo: colesterol total menos HDL colesterol.',
+    preparation: [
+      'Segue o preparo dos exames usados no cálculo: colesterol total e HDL.',
+      'Jejum geralmente não é obrigatório, salvo orientação médica ou do laboratório.'
+    ],
+    interactions: [
+      'Qualquer interferência em colesterol total ou HDL altera o cálculo do não-HDL.'
+    ],
+    curiosities: [
+      'O não-HDL reúne LDL, VLDL e outras partículas ricas em colesterol que podem participar da aterosclerose.'
+    ]
+  },
+  {
+    id: 'triglicerideos',
+    name: 'Triglicerídeos',
+    category: 'Bioquímica / Perfil Lipídico',
+    synonyms: ['Triglicerides', 'Triglicerídeos séricos', 'TG', 'TGL'],
+    related: ['Perfil Lipídico (Colesterol)', 'VLDL Colesterol', 'Colesterol Total'],
+    shortDescription: 'Dosagem isolada dos triglicerídeos no sangue.',
+    purpose: 'Avalia metabolismo de gorduras, risco cardiovascular e risco de pancreatite quando muito elevado.',
+    referenceValues: [
+      'Desejável geralmente abaixo de 150 mg/dL; a interpretação depende de jejum, método e risco clínico.'
+    ],
+    methodology: 'Método enzimático colorimétrico em soro ou plasma.',
+    preparation: [
+      'Jejum pode ser solicitado conforme rotina do laboratório, valor prévio de triglicerídeos ou pedido médico.',
+      'Evitar consumo de álcool por 72 horas antes, quando possível.',
+      'Manter dieta habitual nos dias anteriores.'
+    ],
+    interactions: [
+      'Álcool, diabetes descompensado, dieta rica em açúcar, gestação, corticoides e alguns medicamentos podem elevar triglicerídeos.'
+    ],
+    curiosities: [
+      'Triglicerídeos muito altos podem aumentar risco de pancreatite, além de interferirem no cálculo do LDL.'
     ]
   },
   {

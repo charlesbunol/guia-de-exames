@@ -17,66 +17,16 @@ import About from './components/About';
 import RequestAnalyzer from './components/RequestAnalyzer';
 import { Mascot } from './components/Mascot';
 import { examsData } from './data/exams';
+import {
+  createExamSearchIndex,
+  filterExamSearchResults,
+  normalizeText,
+  normalizedEquals,
+  normalizedIncludes,
+} from './utils/examSearch';
 
-const normalizeText = (value = '') => (
-  String(value)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[./_+-]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase()
-);
-
-const compactText = (value = '') => normalizeText(value).replace(/\s/g, '');
-const normalizedIncludes = (source, term) => (
-  source.includes(term) || compactText(source).includes(compactText(term))
-);
-const normalizedMatches = (source, term) => {
-  if (normalizedIncludes(source, term)) return true;
-
-  const tokens = term.split(' ').filter(token => token.length > 1);
-  return tokens.length > 1 && tokens.every(token => normalizedIncludes(source, token));
-};
-const normalizedEquals = (source, term) => (
-  normalizeText(source) === term || compactText(source) === compactText(term)
-);
-
-const getExamSearchText = (exam) => normalizeText([
-  exam.id,
-  exam.name,
-  exam.category,
-  exam.shortDescription,
-  exam.purpose,
-  exam.methodology,
-  ...(exam.related || []),
-  ...(exam.synonyms || []),
-  ...(exam.components || []),
-].filter(Boolean).join(' '));
-
-const filterExams = (term) => {
-  const termLower = normalizeText(term);
-
-  if (!termLower) {
-    return examsData;
-  }
-
-  return examsData.filter(exam => normalizedMatches(getExamSearchText(exam), termLower)).sort((a, b) => {
-    const aName = normalizeText(a.name);
-    const bName = normalizeText(b.name);
-    const exactA = normalizedEquals(a.name, termLower) || normalizedEquals(a.id, termLower) || (a.synonyms && a.synonyms.some(s => normalizedEquals(s, termLower)));
-    const exactB = normalizedEquals(b.name, termLower) || normalizedEquals(b.id, termLower) || (b.synonyms && b.synonyms.some(s => normalizedEquals(s, termLower)));
-    if (exactA && !exactB) return -1;
-    if (!exactA && exactB) return 1;
-
-    const startsA = aName.startsWith(termLower);
-    const startsB = bName.startsWith(termLower);
-    if (startsA && !startsB) return -1;
-    if (!startsA && startsB) return 1;
-
-    return 0;
-  });
-};
+const examSearchIndex = createExamSearchIndex(examsData);
+const filterExams = (term) => filterExamSearchResults(examSearchIndex, term);
 
 const findRelatedExam = (name) => {
   const termLower = normalizeText(name);

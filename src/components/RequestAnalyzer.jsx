@@ -1,6 +1,11 @@
 import { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { examsData } from '../data/exams';
+import {
+  createExamSearchIndex,
+  findBestExamMatch,
+  normalizeText,
+} from '../utils/examSearch';
 
 const MAX_PDF_BYTES = 3.2 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 12 * 1024 * 1024;
@@ -12,85 +17,7 @@ const SUPPORTED_TYPES = new Set([
   'image/webp',
 ]);
 
-const normalizeText = (value = '') => (
-  String(value)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[./_+-]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase()
-);
-
-const compactText = (value = '') => normalizeText(value).replace(/\s/g, '');
-const normalizedEquals = (source, term) => (
-  normalizeText(source) === normalizeText(term) || compactText(source) === compactText(term)
-);
-const normalizedIncludes = (source, term) => {
-  const normalizedSource = normalizeText(source);
-  const normalizedTerm = normalizeText(term);
-
-  return normalizedSource.includes(normalizedTerm) || compactText(normalizedSource).includes(compactText(normalizedTerm));
-};
-
-const getExamSearchText = (exam) => normalizeText([
-  exam.id,
-  exam.name,
-  exam.category,
-  exam.shortDescription,
-  exam.purpose,
-  exam.methodology,
-  ...(exam.related || []),
-  ...(exam.synonyms || []),
-  ...(exam.components || []),
-].filter(Boolean).join(' '));
-
-const examSearchIndex = examsData.map(exam => ({
-  exam,
-  text: getExamSearchText(exam),
-  aliases: [
-    exam.id,
-    exam.name,
-    ...(exam.synonyms || []),
-    ...(exam.components || []),
-  ].filter(Boolean),
-}));
-
-const scoreExamMatch = (examIndex, term) => {
-  const normalizedTerm = normalizeText(term);
-
-  if (!normalizedTerm) return 0;
-  if (examIndex.aliases.some(alias => normalizedEquals(alias, normalizedTerm))) return 100;
-  if (normalizedEquals(examIndex.exam.id, normalizedTerm)) return 98;
-  if (normalizedIncludes(examIndex.exam.name, normalizedTerm)) return 86;
-  if (examIndex.aliases.some(alias => normalizedIncludes(alias, normalizedTerm) || normalizedIncludes(normalizedTerm, alias))) return 80;
-  if (normalizedIncludes(examIndex.text, normalizedTerm)) return 68;
-
-  const tokens = normalizedTerm.split(' ').filter(token => token.length > 2);
-  if (tokens.length < 2) return 0;
-
-  const hits = tokens.filter(token => normalizedIncludes(examIndex.text, token)).length;
-  return hits === tokens.length ? 55 + hits : 0;
-};
-
-const findBestExamMatch = (extractedExam) => {
-  const terms = [
-    extractedExam.normalizedName,
-    extractedExam.originalText,
-  ].filter(Boolean);
-
-  let bestMatch = null;
-
-  for (const examIndex of examSearchIndex) {
-    const score = Math.max(...terms.map(term => scoreExamMatch(examIndex, term)));
-
-    if (score > (bestMatch?.score || 0)) {
-      bestMatch = { exam: examIndex.exam, score };
-    }
-  }
-
-  return bestMatch?.score >= 55 ? bestMatch : null;
-};
+const examSearchIndex = createExamSearchIndex(examsData);
 
 const readBlobAsDataUrl = (blob) => new Promise((resolve, reject) => {
   const reader = new FileReader();
@@ -284,7 +211,7 @@ const RequestAnalyzer = () => {
 
   const mappedResults = useMemo(() => {
     const items = (analysis?.exams || []).map(extracted => {
-      const match = findBestExamMatch(extracted);
+      const match = findBestExamMatch(examSearchIndex, extracted);
       const confidence = typeof extracted.confidence === 'number' ? extracted.confidence : 0;
 
       return {
