@@ -24,6 +24,12 @@ const Header = ({ theme, toggleTheme }) => {
           >
             Sobre
           </NavLink>
+          <NavLink
+            to="/ler-solicitacao"
+            className={({ isActive }) => isActive ? 'active' : ''}
+          >
+            Ler pedido
+          </NavLink>
           <button 
             className="theme-toggle" 
             onClick={toggleTheme} 

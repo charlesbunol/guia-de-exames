@@ -14,6 +14,7 @@ import SearchHero from './components/SearchHero';
 import ResultDashboard from './components/ResultDashboard';
 import ExamDetails from './components/ExamDetails';
 import About from './components/About';
+import RequestAnalyzer from './components/RequestAnalyzer';
 import { Mascot } from './components/Mascot';
 import { examsData } from './data/exams';
 
@@ -265,6 +266,7 @@ function AppShell() {
       <main>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/ler-solicitacao" element={<RequestAnalyzer />} />
           <Route path="/sobre" element={<About />} />
           <Route path="/exames/:examId" element={<ExamDetailsPage />} />
           <Route path="*" element={<ExamNotFound />} />
