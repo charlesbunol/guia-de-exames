@@ -194,6 +194,84 @@ const parseManualExamList = (value) => (
     .filter(Boolean)
 );
 
+const isNoFastingInstruction = (text) => {
+  const normalized = normalizeText(text);
+
+  return normalized.includes('jejum') && (
+    normalized.includes('jejum nao e obrigatorio')
+    || normalized.includes('jejum nao costuma ser obrigatorio')
+    || normalized.includes('nao exige jejum')
+    || normalized.includes('sem jejum')
+  );
+};
+
+const isOptionalFastingInstruction = (text) => {
+  const normalized = normalizeText(text);
+
+  return normalized.includes('jejum') && (
+    normalized.includes('pode ser recomendado')
+    || normalized.includes('pode ser solicitado')
+    || normalized.includes('pode variar')
+  );
+};
+
+const getFastingHours = (text) => {
+  const normalized = normalizeText(text);
+
+  if (!normalized.includes('jejum')) return null;
+
+  const hourMatches = [...normalized.matchAll(/(\d+)\s*(?:a\s*(\d+)\s*)?(?:h|hora|horas)/g)];
+  if (hourMatches.length === 0) return null;
+
+  return Math.max(...hourMatches.map(match => Number(match[2] || match[1])));
+};
+
+const isRequiredFastingInstruction = (text) => {
+  const normalized = normalizeText(text);
+
+  return normalized.includes('jejum')
+    && !isNoFastingInstruction(text)
+    && !isOptionalFastingInstruction(text)
+    && (
+      getFastingHours(text) !== null
+      || normalized.includes('jejum absoluto')
+      || normalized.includes('necessario jejum')
+      || normalized.includes('exige jejum')
+    );
+};
+
+const removeRedundantPreparationItems = (items) => {
+  const requiredFastingItems = items.filter(item => isRequiredFastingInstruction(item.text));
+
+  if (requiredFastingItems.length === 0) {
+    return items.filter(item => !isNoFastingInstruction(item.text));
+  }
+
+  const strictestFastingHours = Math.max(
+    ...requiredFastingItems.map(item => getFastingHours(item.text) || 0)
+  );
+  const hasTimedFasting = strictestFastingHours > 0;
+  let keptFastingInstruction = false;
+
+  return items.filter((item) => {
+    if (isNoFastingInstruction(item.text) || isOptionalFastingInstruction(item.text)) return false;
+
+    if (!isRequiredFastingInstruction(item.text)) return true;
+
+    const itemHours = getFastingHours(item.text) || 0;
+    const keepThisFasting = hasTimedFasting
+      ? itemHours === strictestFastingHours
+      : !keptFastingInstruction;
+
+    if (keepThisFasting && !keptFastingInstruction) {
+      keptFastingInstruction = true;
+      return true;
+    }
+
+    return false;
+  });
+};
+
 const RequestAnalyzer = () => {
   const fileInputRef = useRef(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -244,10 +322,12 @@ const RequestAnalyzer = () => {
       }
     }
 
-    return Array.from(prepMap.values()).map(item => ({
+    const uniqueItems = Array.from(prepMap.values()).map(item => ({
       text: item.text,
       exams: Array.from(item.exams),
     }));
+
+    return removeRedundantPreparationItems(uniqueItems);
   }, [printableResults]);
 
   const handleFileChange = (event) => {
@@ -474,20 +554,24 @@ const RequestAnalyzer = () => {
               <div className="prep-summary-header">
                 <div>
                   <h3 id="prep-summary-title">Resumo de preparo</h3>
-                  <p>{uniquePreparationItems.length} orientacao(oes) unica(s), sem duplicar preparos iguais entre exames.</p>
+                  <p>{uniquePreparationItems.length} orientacao(oes) essencial(is), sem duplicar ou contradizer preparos.</p>
                 </div>
                 <button type="button" className="print-request-btn" onClick={() => handlePrint('summary')}>
                   Imprimir resumo
                 </button>
               </div>
-              <ol className="prep-summary-list">
-                {uniquePreparationItems.map((item, index) => (
-                  <li key={`${item.text}-${index}`}>
-                    <strong>{item.text}</strong>
-                    <small>Aplica-se a: {item.exams.join(', ')}</small>
-                  </li>
-                ))}
-              </ol>
+              {uniquePreparationItems.length > 0 ? (
+                <ol className="prep-summary-list">
+                  {uniquePreparationItems.map((item, index) => (
+                    <li key={`${item.text}-${index}`}>
+                      <strong>{item.text}</strong>
+                      <small>Aplica-se a: {item.exams.join(', ')}</small>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="prep-summary-empty">Nenhum preparo especial identificado para os exames encontrados.</p>
+              )}
             </section>
           )}
 
@@ -552,14 +636,18 @@ const RequestAnalyzer = () => {
         {printMode === 'summary' && (
           <section className="print-exam">
             <h2>Preparos necessarios</h2>
-            <ol>
-              {uniquePreparationItems.map((item, index) => (
-                <li key={`${item.text}-${index}`}>
-                  <strong>{item.text}</strong>
-                  <span>Exames: {item.exams.join(', ')}</span>
-                </li>
-              ))}
-            </ol>
+            {uniquePreparationItems.length > 0 ? (
+              <ol>
+                {uniquePreparationItems.map((item, index) => (
+                  <li key={`${item.text}-${index}`}>
+                    <strong>{item.text}</strong>
+                    <span>Exames: {item.exams.join(', ')}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p>Nenhum preparo especial identificado para os exames encontrados.</p>
+            )}
           </section>
         )}
         {printMode === 'complete' && printableResults.map(item => (
@@ -840,6 +928,10 @@ const RequestAnalyzer = () => {
           margin-bottom: 0.15rem;
         }
         .prep-summary-list small {
+          color: var(--text-muted);
+        }
+        .prep-summary-empty {
+          margin: 0;
           color: var(--text-muted);
         }
         .result-grid {
