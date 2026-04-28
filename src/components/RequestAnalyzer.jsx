@@ -184,9 +184,20 @@ const dedupeMatches = (items) => {
   });
 };
 
+const parseManualExamList = (value) => (
+  value
+    .split(/\r?\n|;|,/)
+    .map(item => item
+      .replace(/^\s*[-*•]+\s*/, '')
+      .replace(/^\s*\d+[.)-]?\s*/, '')
+      .trim())
+    .filter(Boolean)
+);
+
 const RequestAnalyzer = () => {
   const fileInputRef = useRef(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [manualText, setManualText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState('');
   const [analysis, setAnalysis] = useState(null);
@@ -221,6 +232,7 @@ const RequestAnalyzer = () => {
 
   const handleClear = () => {
     setSelectedFiles([]);
+    setManualText('');
     setAnalysis(null);
     setError('');
     if (fileInputRef.current) {
@@ -273,6 +285,26 @@ const RequestAnalyzer = () => {
     }
   };
 
+  const handleManualAnalyze = () => {
+    const manualExams = parseManualExamList(manualText);
+
+    if (manualExams.length === 0) {
+      setError('Digite ou cole pelo menos um exame para montar a lista.');
+      return;
+    }
+
+    setError('');
+    setAnalysis({
+      exams: manualExams.map(examName => ({
+        originalText: examName,
+        normalizedName: examName,
+        confidence: 0.95,
+        needsReview: false,
+      })),
+      notes: ['Lista inserida manualmente. Confira os itens encontrados antes de imprimir.'],
+    });
+  };
+
   const handlePrint = () => {
     document.body.classList.add('printing-request-analysis');
     window.print();
@@ -285,9 +317,9 @@ const RequestAnalyzer = () => {
     <article className="request-analyzer container animate-fade-in">
       <header className="request-hero">
         <span className="request-eyebrow">Leitura de solicitação médica</span>
-        <h1>Envie uma foto ou PDF para montar a lista de exames</h1>
+        <h1>Envie uma foto, PDF ou digite a lista de exames</h1>
         <p>
-          O site le uma ou mais paginas do pedido, identifica os exames encontrados no banco de dados e organiza os preparos em uma lista unica para consulta ou impressao.
+          O site le uma ou mais paginas do pedido, ou aceita uma lista digitada, identifica os exames encontrados no banco de dados e organiza os preparos em uma lista unica para consulta ou impressao.
         </p>
       </header>
 
@@ -336,12 +368,41 @@ const RequestAnalyzer = () => {
             <button type="button" className="analyze-btn" onClick={handleAnalyze} disabled={isAnalyzing}>
               {isAnalyzing ? 'Analisando...' : 'Analisar solicitação'}
             </button>
-            <button type="button" className="clear-request-btn" onClick={handleClear} disabled={isAnalyzing || (selectedFiles.length === 0 && !analysis)}>
+            <button type="button" className="clear-request-btn" onClick={handleClear} disabled={isAnalyzing || (selectedFiles.length === 0 && !manualText && !analysis)}>
               Limpar
             </button>
           </div>
 
           {error && <p className="request-error" role="alert">{error}</p>}
+        </div>
+      </section>
+
+      <section className="manual-panel" aria-labelledby="manual-title">
+        <div className="manual-copy">
+          <h2 id="manual-title">Inserir exames manualmente</h2>
+          <p>
+            Cole ou digite os exames um por linha. Tambem aceitamos itens separados por virgula ou ponto e virgula.
+          </p>
+        </div>
+        <div className="manual-input-wrap">
+          <textarea
+            className="manual-exam-input"
+            value={manualText}
+            onChange={(event) => {
+              setManualText(event.target.value);
+              setError('');
+            }}
+            placeholder={'Hemograma completo\nGlicemia de jejum\nTSH'}
+            rows={6}
+          />
+          <div className="upload-actions">
+            <button type="button" className="analyze-btn" onClick={handleManualAnalyze} disabled={isAnalyzing}>
+              Montar lista manual
+            </button>
+            <button type="button" className="clear-request-btn" onClick={handleClear} disabled={isAnalyzing || (selectedFiles.length === 0 && !manualText && !analysis)}>
+              Limpar
+            </button>
+          </div>
         </div>
       </section>
 
@@ -472,6 +533,7 @@ const RequestAnalyzer = () => {
         }
         .request-hero p,
         .upload-copy p,
+        .manual-copy p,
         .analysis-header p,
         .review-box p {
           color: var(--text-muted);
@@ -483,8 +545,17 @@ const RequestAnalyzer = () => {
           align-items: stretch;
           margin-bottom: 2rem;
         }
+        .manual-panel {
+          display: grid;
+          grid-template-columns: minmax(0, 0.85fr) minmax(320px, 1.15fr);
+          gap: 1.25rem;
+          align-items: stretch;
+          margin-bottom: 2rem;
+        }
         .upload-copy,
         .upload-box,
+        .manual-copy,
+        .manual-input-wrap,
         .request-exam-card,
         .review-box,
         .notes-box {
@@ -510,6 +581,31 @@ const RequestAnalyzer = () => {
         }
         .upload-box {
           padding: 1.25rem;
+        }
+        .manual-copy,
+        .manual-input-wrap {
+          padding: 1.25rem;
+        }
+        .manual-copy h2 {
+          font-size: 1.35rem;
+          margin-bottom: 0.75rem;
+        }
+        .manual-exam-input {
+          width: 100%;
+          min-height: 9rem;
+          resize: vertical;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          background: var(--surface);
+          color: var(--text-main);
+          font: inherit;
+          line-height: 1.5;
+          padding: 0.9rem 1rem;
+          outline: none;
+        }
+        .manual-exam-input:focus {
+          border-color: var(--primary);
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 16%, transparent);
         }
         .file-drop {
           display: grid;
@@ -687,6 +783,9 @@ const RequestAnalyzer = () => {
             padding-top: 2rem;
           }
           .upload-panel {
+            grid-template-columns: 1fr;
+          }
+          .manual-panel {
             grid-template-columns: 1fr;
           }
           .analysis-header {
