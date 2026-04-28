@@ -199,6 +199,8 @@ const RequestAnalyzer = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [manualText, setManualText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showPrepSummary, setShowPrepSummary] = useState(false);
+  const [printMode, setPrintMode] = useState('complete');
   const [error, setError] = useState('');
   const [analysis, setAnalysis] = useState(null);
 
@@ -221,6 +223,32 @@ const RequestAnalyzer = () => {
   const matchedResults = mappedResults.filter(item => item.exam && !item.needsReview);
   const reviewResults = mappedResults.filter(item => !item.exam || item.needsReview);
   const printableResults = mappedResults.filter(item => item.exam);
+  const uniquePreparationItems = useMemo(() => {
+    const prepMap = new Map();
+
+    for (const item of printableResults) {
+      const preparations = item.exam.preparation || ['Consulte o laboratório para confirmar o preparo.'];
+
+      for (const preparation of preparations) {
+        const key = normalizeText(preparation);
+        if (!key) continue;
+
+        if (!prepMap.has(key)) {
+          prepMap.set(key, {
+            text: preparation,
+            exams: new Set(),
+          });
+        }
+
+        prepMap.get(key).exams.add(item.exam.name);
+      }
+    }
+
+    return Array.from(prepMap.values()).map(item => ({
+      text: item.text,
+      exams: Array.from(item.exams),
+    }));
+  }, [printableResults]);
 
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files || []);
@@ -233,6 +261,8 @@ const RequestAnalyzer = () => {
   const handleClear = () => {
     setSelectedFiles([]);
     setManualText('');
+    setShowPrepSummary(false);
+    setPrintMode('complete');
     setAnalysis(null);
     setError('');
     if (fileInputRef.current) {
@@ -274,6 +304,8 @@ const RequestAnalyzer = () => {
         exams: Array.isArray(payload.exams) ? payload.exams : [],
         notes: Array.isArray(payload.notes) ? payload.notes : [],
       });
+      setShowPrepSummary(false);
+      setPrintMode('complete');
     } catch (caughtError) {
       const message = caughtError instanceof SyntaxError
         ? 'A API local nao respondeu em JSON. Abra o site pelo servidor local do projeto e confira se a OPENAI_API_KEY esta configurada.'
@@ -294,6 +326,8 @@ const RequestAnalyzer = () => {
     }
 
     setError('');
+    setShowPrepSummary(false);
+    setPrintMode('complete');
     setAnalysis({
       exams: manualExams.map(examName => ({
         originalText: examName,
@@ -305,12 +339,15 @@ const RequestAnalyzer = () => {
     });
   };
 
-  const handlePrint = () => {
+  const handlePrint = (mode = 'complete') => {
+    setPrintMode(mode);
     document.body.classList.add('printing-request-analysis');
-    window.print();
     window.setTimeout(() => {
-      document.body.classList.remove('printing-request-analysis');
-    }, 800);
+      window.print();
+      window.setTimeout(() => {
+        document.body.classList.remove('printing-request-analysis');
+      }, 800);
+    }, 0);
   };
 
   return (
@@ -416,16 +453,43 @@ const RequestAnalyzer = () => {
               </p>
             </div>
             {printableResults.length > 0 && (
-              <button type="button" className="print-request-btn" onClick={handlePrint}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M6 9V2h12v7"></path>
-                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                  <path d="M6 14h12v8H6z"></path>
-                </svg>
-                Imprimir / salvar PDF
-              </button>
+              <div className="analysis-actions">
+                <button type="button" className="summary-toggle-btn" onClick={() => setShowPrepSummary(value => !value)}>
+                  {showPrepSummary ? 'Ocultar resumo' : 'Resumo de preparo'}
+                </button>
+                <button type="button" className="print-request-btn" onClick={() => handlePrint('complete')}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M6 9V2h12v7"></path>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <path d="M6 14h12v8H6z"></path>
+                  </svg>
+                  Imprimir lista completa
+                </button>
+              </div>
             )}
           </div>
+
+          {showPrepSummary && printableResults.length > 0 && (
+            <section className="prep-summary-box" aria-labelledby="prep-summary-title">
+              <div className="prep-summary-header">
+                <div>
+                  <h3 id="prep-summary-title">Resumo de preparo</h3>
+                  <p>{uniquePreparationItems.length} orientacao(oes) unica(s), sem duplicar preparos iguais entre exames.</p>
+                </div>
+                <button type="button" className="print-request-btn" onClick={() => handlePrint('summary')}>
+                  Imprimir resumo
+                </button>
+              </div>
+              <ol className="prep-summary-list">
+                {uniquePreparationItems.map((item, index) => (
+                  <li key={`${item.text}-${index}`}>
+                    <strong>{item.text}</strong>
+                    <small>Aplica-se a: {item.exams.join(', ')}</small>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
 
           {matchedResults.length > 0 && (
             <div className="result-grid">
@@ -483,9 +547,22 @@ const RequestAnalyzer = () => {
       )}
 
       <section className="request-print-sheet" aria-hidden="true">
-        <h1>Lista de exames e preparos</h1>
+        <h1>{printMode === 'summary' ? 'Resumo de preparo' : 'Lista de exames e preparos'}</h1>
         <p className="print-source">Gerado pelo Guia de Exames em {new Date().toLocaleDateString('pt-BR')}</p>
-        {printableResults.map(item => (
+        {printMode === 'summary' && (
+          <section className="print-exam">
+            <h2>Preparos necessarios</h2>
+            <ol>
+              {uniquePreparationItems.map((item, index) => (
+                <li key={`${item.text}-${index}`}>
+                  <strong>{item.text}</strong>
+                  <span>Exames: {item.exams.join(', ')}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+        {printMode === 'complete' && printableResults.map(item => (
           <section key={item.exam.id} className="print-exam">
             <h2>{item.exam.name}</h2>
             <p>Lido como: {item.extracted.originalText || item.extracted.normalizedName}</p>
@@ -496,7 +573,7 @@ const RequestAnalyzer = () => {
             </ul>
           </section>
         ))}
-        {reviewResults.length > 0 && (
+        {printMode === 'complete' && reviewResults.length > 0 && (
           <section className="print-exam">
             <h2>Itens para revisar</h2>
             <ul>
@@ -709,8 +786,61 @@ const RequestAnalyzer = () => {
           justify-content: space-between;
           gap: 1rem;
         }
+        .analysis-actions,
+        .prep-summary-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+        }
         .analysis-header h2 {
           margin-bottom: 0.25rem;
+        }
+        .summary-toggle-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 2.75rem;
+          padding: 0.75rem 1rem;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          color: var(--text-main);
+          background: var(--surface);
+          font-weight: 700;
+        }
+        .summary-toggle-btn:hover {
+          border-color: var(--primary);
+          color: var(--primary);
+        }
+        .prep-summary-box {
+          padding: 1.25rem;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          box-shadow: var(--shadow-sm);
+        }
+        .prep-summary-header {
+          margin-bottom: 1rem;
+        }
+        .prep-summary-header h3 {
+          margin-bottom: 0.25rem;
+        }
+        .prep-summary-list {
+          display: grid;
+          gap: 0.75rem;
+          margin: 0;
+          padding-left: 1.25rem;
+        }
+        .prep-summary-list li {
+          color: var(--text-main);
+        }
+        .prep-summary-list strong {
+          display: block;
+          margin-bottom: 0.15rem;
+        }
+        .prep-summary-list small {
+          color: var(--text-muted);
         }
         .result-grid {
           display: grid;
@@ -793,31 +923,53 @@ const RequestAnalyzer = () => {
             flex-direction: column;
           }
           .print-request-btn,
+          .summary-toggle-btn,
           .analyze-btn,
           .clear-request-btn {
             width: 100%;
           }
         }
         @media print {
-          body.printing-request-analysis * {
-            visibility: hidden !important;
+          @page {
+            margin: 12mm;
           }
-          body.printing-request-analysis .request-print-sheet,
-          body.printing-request-analysis .request-print-sheet * {
-            visibility: visible !important;
+          body.printing-request-analysis {
+            background: #fff !important;
+            color: #111827 !important;
+          }
+          body.printing-request-analysis .app-wrapper {
+            display: block !important;
+            min-height: 0 !important;
+          }
+          body.printing-request-analysis .header,
+          body.printing-request-analysis .footer,
+          body.printing-request-analysis .mascot-container,
+          body.printing-request-analysis .request-analyzer > :not(.request-print-sheet) {
+            display: none !important;
+          }
+          body.printing-request-analysis main,
+          body.printing-request-analysis .request-analyzer {
+            display: block !important;
+            width: auto !important;
+            max-width: none !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
           body.printing-request-analysis .request-print-sheet {
             display: block !important;
-            position: absolute;
-            inset: 0 auto auto 0;
-            width: 100%;
-            padding: 28px;
+            position: static !important;
+            width: auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
             background: #fff;
             color: #111827;
             font-family: Arial, sans-serif;
           }
           .request-print-sheet h1 {
-            font-size: 24px;
+            color: #111827;
+            font-size: 22px;
             margin-bottom: 6px;
           }
           .request-print-sheet .print-source,
@@ -829,19 +981,30 @@ const RequestAnalyzer = () => {
           .print-exam {
             break-inside: avoid;
             border-top: 1px solid #d1d5db;
-            margin-top: 16px;
-            padding-top: 12px;
+            margin-top: 12px;
+            padding-top: 10px;
           }
           .print-exam h2 {
-            font-size: 17px;
+            color: #111827;
+            font-size: 16px;
             margin-bottom: 4px;
           }
-          .print-exam ul {
+          .print-exam ul,
+          .print-exam ol {
             margin: 8px 0 0;
             padding-left: 18px;
           }
           .print-exam li {
             margin-bottom: 5px;
+          }
+          .print-exam strong,
+          .print-exam span {
+            display: block;
+          }
+          .print-exam span {
+            color: #4b5563;
+            font-size: 11px;
+            margin-top: 2px;
           }
         }
       `}</style>
