@@ -127,18 +127,39 @@ const isNoFastingInstruction = (text) => {
   return normalized.includes('jejum') && (
     normalized.includes('jejum nao e obrigatorio')
     || normalized.includes('jejum nao costuma ser obrigatorio')
+    || normalized.includes('jejum nao e necessario')
+    || normalized.includes('jejum nao e estritamente obrigatorio')
+    || normalized.includes('nao e obrigatorio')
+    || normalized.includes('nao e mais obrigatorio')
+    || normalized.includes('nao e necessario')
+    || normalized.includes('nao ha jejum')
     || normalized.includes('nao exige jejum')
     || normalized.includes('sem jejum')
   );
 };
 
-const isOptionalFastingInstruction = (text) => {
+const isConditionalFastingInstruction = (text) => {
   const normalized = normalizeText(text);
 
   return normalized.includes('jejum') && (
     normalized.includes('pode ser recomendado')
     || normalized.includes('pode ser solicitado')
     || normalized.includes('pode variar')
+    || normalized.includes('costuma ser recomendado')
+    || normalized.includes('recomendado conforme')
+    || normalized.includes('solicitado conforme')
+    || normalized.includes('confirmar necessidade de jejum')
+    || normalized.includes('confirmar jejum')
+    || normalized.includes('so e exigido se')
+    || normalized.includes('so e necessario se')
+    || normalized.includes('apenas se')
+    || normalized.includes('se o medico solicitar')
+    || normalized.includes('se o medico solicitou')
+    || normalized.includes('solicitar expressamente')
+    || normalized.includes('pedido medico')
+    || normalized.includes('conforme rotina')
+    || normalized.includes('conforme o laboratorio')
+    || normalized.includes('conforme laboratorio')
   );
 };
 
@@ -158,7 +179,7 @@ const isRequiredFastingInstruction = (text) => {
 
   return normalized.includes('jejum')
     && !isNoFastingInstruction(text)
-    && !isOptionalFastingInstruction(text)
+    && !isConditionalFastingInstruction(text)
     && (
       getFastingHours(text) !== null
       || normalized.includes('jejum absoluto')
@@ -178,25 +199,46 @@ const removeRedundantPreparationItems = (items) => {
     ...requiredFastingItems.map(item => getFastingHours(item.text) || 0)
   );
   const hasTimedFasting = strictestFastingHours > 0;
-  let keptFastingInstruction = false;
+  const mergedFastingExams = new Set();
+  let preferredFastingItem = null;
 
-  return items.filter((item) => {
-    if (isNoFastingInstruction(item.text) || isOptionalFastingInstruction(item.text)) return false;
+  for (const item of requiredFastingItems) {
+    const itemHours = getFastingHours(item.text) || 0;
+    const matchesStrictest = hasTimedFasting ? itemHours === strictestFastingHours : true;
 
-    if (!isRequiredFastingInstruction(item.text)) return true;
+    if (!matchesStrictest) continue;
+
+    for (const exam of item.exams) {
+      mergedFastingExams.add(exam);
+    }
+
+    if (!preferredFastingItem) {
+      preferredFastingItem = item;
+    }
+  }
+
+  return items.reduce((cleanItems, item) => {
+    if (isNoFastingInstruction(item.text) || isConditionalFastingInstruction(item.text)) return cleanItems;
+
+    if (!isRequiredFastingInstruction(item.text)) {
+      cleanItems.push(item);
+      return cleanItems;
+    }
 
     const itemHours = getFastingHours(item.text) || 0;
     const keepThisFasting = hasTimedFasting
       ? itemHours === strictestFastingHours
-      : !keptFastingInstruction;
+      : item === preferredFastingItem;
 
-    if (keepThisFasting && !keptFastingInstruction) {
-      keptFastingInstruction = true;
-      return true;
+    if (keepThisFasting && item === preferredFastingItem) {
+      cleanItems.push({
+        ...item,
+        exams: Array.from(mergedFastingExams),
+      });
     }
 
-    return false;
-  });
+    return cleanItems;
+  }, []);
 };
 
 const RequestAnalyzer = () => {

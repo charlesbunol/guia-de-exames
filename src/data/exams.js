@@ -42,7 +42,7 @@ const baseExamsData = [
     id: 'coagulograma',
     name: 'Coagulograma',
     category: 'Sangue',
-    synonyms: ['Estudo da Coagulação', 'Perfil de Coagulação', 'TS', 'TC', 'TAP', 'TP', 'TTPA', 'TPAE', 'KPTT'],
+    synonyms: ['Estudo da Coagulação', 'Perfil de Coagulação', 'Coagulograma completo'],
     components: ['Tempo de Sangramento (TS)', 'Tempo de Coagulação (TC)', 'Tempo de Protrombina (TAP/TP)', 'Tempo de Tromboplastina Parcial Ativada (TTPA/KPTT)', 'Plaquetas'],
     related: ['Hemograma', 'Fibrinogênio'],
     shortDescription: 'Conjunto de exames que analisa o processo de coagulação do sangue, essencial para pré-operatórios.',
@@ -69,6 +69,103 @@ const baseExamsData = [
       'Pacientes que tomam o anticoagulante Varfarina precisam monitorar o TAP (através do INR) regularmente para garantir que o sangue não esteja ralo demais (risco de hemorragia) nem grosso demais (risco de trombose).',
       'Doenças genéticas como a Hemofilia causam falhas pontuais nessa cascata, fazendo com que a pessoa sangre por muito mais tempo em cortes simples.',
       'O sangue retirado para o Coagulograma vai para um tubo com tampa azul-clara contendo Citrato de Sódio, que impede o sangue de coagular dentro do tubo até o momento da análise na máquina.'
+    ]
+  },
+  {
+    id: 'tap-tp-inr',
+    name: 'Tempo de Protrombina (TAP/TP) e INR',
+    category: 'Coagulação',
+    synonyms: ['TAP', 'TP', 'INR', 'RNI', 'Tempo de Protrombina', 'Atividade de Protrombina'],
+    related: ['Coagulograma', 'TTPA', 'Fibrinogênio'],
+    shortDescription: 'Avalia a via extrínseca da coagulação e informa o INR, muito usado no controle da varfarina.',
+    purpose: 'Investiga alterações de coagulação, deficiência de fatores dependentes de vitamina K, função hepática relacionada à coagulação e acompanhamento de anticoagulação oral.',
+    referenceValues: [
+      'TP/TAP e INR variam conforme reagente e objetivo clínico; INR próximo de 1 costuma ser esperado em pessoas sem anticoagulação.'
+    ],
+    methodology: 'Método coagulométrico em plasma citratado, com cálculo do INR a partir do tempo de protrombina.',
+    preparation: [
+      'Jejum geralmente não é obrigatório.',
+      'Informar uso de anticoagulantes, especialmente varfarina/Marevan, rivaroxabana, apixabana ou heparina.',
+      'Tubo citratado deve estar preenchido corretamente.'
+    ],
+    interactions: [
+      'Varfarina aumenta o INR.',
+      'Vitamina K, antibióticos, anti-inflamatórios e doença hepática podem alterar o resultado.'
+    ],
+    curiosities: [
+      'O INR padroniza o TAP entre laboratórios, permitindo acompanhar anticoagulação com mais segurança.'
+    ]
+  },
+  {
+    id: 'ttpa-kptt',
+    name: 'Tempo de Tromboplastina Parcial Ativada (TTPA/KPTT)',
+    category: 'Coagulação',
+    synonyms: ['TTPA', 'KPTT', 'PTT', 'TTPa', 'Tempo de Tromboplastina Parcial Ativada'],
+    related: ['Coagulograma', 'TAP/TP', 'Fator VIII', 'Fator IX'],
+    shortDescription: 'Avalia a via intrínseca e comum da coagulação.',
+    purpose: 'Ajuda a investigar sangramentos, deficiência de fatores, presença de anticoagulante lúpico e monitoramento de heparina não fracionada.',
+    referenceValues: [
+      'Geralmente expresso em segundos; faixa varia conforme reagente e laboratório.'
+    ],
+    methodology: 'Método coagulométrico em plasma citratado.',
+    preparation: [
+      'Jejum geralmente não é obrigatório.',
+      'Informar heparina, anticoagulantes, reposição de fatores e histórico de sangramento.',
+      'Tubo citratado deve respeitar a proporção correta de sangue e anticoagulante.'
+    ],
+    interactions: [
+      'Heparina pode prolongar o TTPA.',
+      'Anticoagulante lúpico, deficiência de fatores e amostras mal coletadas podem alterar o resultado.'
+    ],
+    curiosities: [
+      'TTPA prolongado nem sempre significa risco de sangramento; algumas causas estão ligadas a trombose, como o anticoagulante lúpico.'
+    ]
+  },
+  {
+    id: 'tempo-sangramento',
+    name: 'Tempo de Sangramento (TS)',
+    category: 'Coagulação',
+    synonyms: ['TS', 'Tempo de Sangramento', 'Metodo de Duke'],
+    related: ['Coagulograma', 'Plaquetas'],
+    shortDescription: 'Teste clássico de hemostasia primária, hoje menos usado em muitas rotinas.',
+    purpose: 'Avalia de forma global a interação entre plaquetas e parede vascular, quando ainda solicitado pelo médico ou protocolo.',
+    referenceValues: [
+      'Faixa varia conforme técnica; métodos clássicos costumam informar minutos.'
+    ],
+    methodology: 'Método manual cronometrado, como Duke ou Ivy, conforme rotina.',
+    preparation: [
+      'Jejum geralmente não é obrigatório.',
+      'Informar uso de AAS, anti-inflamatórios e antiagregantes plaquetários.'
+    ],
+    interactions: [
+      'AAS e antiagregantes podem prolongar o tempo de sangramento.',
+      'Plaquetopenia e alterações funcionais das plaquetas também interferem.'
+    ],
+    curiosities: [
+      'Muitos serviços substituíram o TS por avaliações mais modernas de plaquetas e coagulação.'
+    ]
+  },
+  {
+    id: 'tempo-coagulacao',
+    name: 'Tempo de Coagulação (TC)',
+    category: 'Coagulação',
+    synonyms: ['TC', 'Tempo de Coagulação', 'Tempo de Coagulacao', 'Lee White'],
+    related: ['Coagulograma', 'TAP/TP', 'TTPA'],
+    shortDescription: 'Teste manual clássico que mede o tempo para formação de coágulo.',
+    purpose: 'Pode compor pedidos antigos de coagulograma, mas tem uso limitado frente aos testes automatizados.',
+    referenceValues: [
+      'Faixa varia conforme técnica manual adotada pelo laboratório.'
+    ],
+    methodology: 'Método manual cronometrado, como Lee-White, quando disponível.',
+    preparation: [
+      'Jejum geralmente não é obrigatório.',
+      'Informar anticoagulantes e histórico de sangramento.'
+    ],
+    interactions: [
+      'Anticoagulantes e problemas importantes da cascata de coagulação podem prolongar o tempo.'
+    ],
+    curiosities: [
+      'O TC é histórico; TAP, TTPA e fibrinogênio costumam orientar melhor a avaliação atual.'
     ]
   },
   {
@@ -1245,6 +1342,7 @@ const baseExamsData = [
     name: 'Bilirrubinas (Total, Direta e Indireta)',
     category: 'Bioquímica Hepática',
     synonyms: ['Bilirrubina Total e Frações', 'Exame de Icterícia', 'Bilirrubinemia'],
+    components: ['Bilirrubina Total', 'Bilirrubina Direta', 'Bilirrubina Indireta'],
     related: ['TGO', 'TGP', 'Fosfatase Alcalina', 'Gama GT'],
     shortDescription: 'Mede o pigmento amarelo resultante da reciclagem do sangue velho pelo fígado.',
     purpose: 'Diagnóstico de doenças do fígado (hepatites, cirrose), bloqueio dos ductos biliares (pedras na vesícula) ou destruição rápida dos glóbulos vermelhos (anemia hemolítica).',
@@ -1264,6 +1362,75 @@ const baseExamsData = [
     curiosities: [
       'A Bilirrubina é o pigmento amarelo que deixa os olhos e a pele amarelos (icterícia) em pessoas com problemas no fígado.',
       'Bebês recém-nascidos ficam amarelados porque seu fígado ainda é muito "lento" para processar a bilirrubina indireta. Eles vão para um banho de "luz azul" na UTI neonatal justamente porque a luz destrói a molécula de bilirrubina direto na pele!'
+    ]
+  },
+  {
+    id: 'bilirrubina-total',
+    name: 'Bilirrubina Total',
+    category: 'Bioquímica Hepática',
+    synonyms: ['BT', 'Bilirrubina total isolada'],
+    related: ['Bilirrubinas', 'TGO', 'TGP', 'Gama GT'],
+    shortDescription: 'Dosagem isolada da bilirrubina total no sangue.',
+    purpose: 'Avalia a soma da bilirrubina direta e indireta, auxiliando na investigação de icterícia, hemólise e doenças hepáticas.',
+    referenceValues: [
+      'Geralmente até 1,2 mg/dL, variando conforme laboratório.'
+    ],
+    methodology: 'Método colorimétrico em soro ou plasma.',
+    preparation: [
+      'Jejum geralmente não é obrigatório.',
+      'A amostra deve ser protegida da luz.'
+    ],
+    interactions: [
+      'Exposição da amostra à luz pode reduzir falsamente o resultado.'
+    ],
+    curiosities: [
+      'A bilirrubina total não mostra sozinha se a fração predominante é direta ou indireta; por isso muitas vezes vem com frações.'
+    ]
+  },
+  {
+    id: 'bilirrubina-direta',
+    name: 'Bilirrubina Direta',
+    category: 'Bioquímica Hepática',
+    synonyms: ['BD', 'Bilirrubina conjugada', 'Bilirrubina direta isolada'],
+    related: ['Bilirrubinas', 'Bilirrubina Total', 'Gama GT', 'Fosfatase Alcalina'],
+    shortDescription: 'Dosagem da fração conjugada da bilirrubina.',
+    purpose: 'Ajuda a diferenciar causas de icterícia, especialmente colestase e obstrução biliar.',
+    referenceValues: [
+      'Geralmente até 0,3 mg/dL, variando conforme laboratório.'
+    ],
+    methodology: 'Método colorimétrico em soro ou plasma.',
+    preparation: [
+      'Jejum geralmente não é obrigatório.',
+      'A amostra deve ser protegida da luz.'
+    ],
+    interactions: [
+      'Exposição à luz e hemólise intensa podem interferir.'
+    ],
+    curiosities: [
+      'Quando a bilirrubina direta sobe, a urina pode escurecer porque essa fração é solúvel em água.'
+    ]
+  },
+  {
+    id: 'bilirrubina-indireta',
+    name: 'Bilirrubina Indireta',
+    category: 'Bioquímica Hepática',
+    synonyms: ['BI', 'Bilirrubina não conjugada', 'Bilirrubina nao conjugada', 'Bilirrubina indireta isolada'],
+    related: ['Bilirrubinas', 'Bilirrubina Total', 'Hemograma'],
+    shortDescription: 'Fração não conjugada, geralmente calculada a partir da total e direta.',
+    purpose: 'Ajuda na investigação de hemólise, icterícia neonatal e alterações de conjugação hepática.',
+    referenceValues: [
+      'Geralmente até 0,9 mg/dL, variando conforme laboratório.'
+    ],
+    methodology: 'Cálculo ou dosagem conforme rotina do laboratório.',
+    preparation: [
+      'Jejum geralmente não é obrigatório.',
+      'A amostra deve ser protegida da luz.'
+    ],
+    interactions: [
+      'Exposição à luz pode reduzir valores de bilirrubina.'
+    ],
+    curiosities: [
+      'A bilirrubina indireta circula ligada à albumina antes de ser processada pelo fígado.'
     ]
   },
   {
@@ -1529,6 +1696,54 @@ const baseExamsData = [
     curiosities: [
       'Qualquer massagem ou trauma mecânico (como o banco duro de uma bicicleta esportiva por muito tempo) espreme a próstata e faz a enzima vazar em altíssimas quantidades para o sangue, assustando pacientes que acham ser câncer de repende.',
       'O PSA por si só não bate o martelo para câncer, mas é o cão de guarda. Se ele sobe, é hora da Biópsia.'
+    ]
+  },
+  {
+    id: 'psa-total',
+    name: 'PSA Total',
+    category: 'Marcadores Tumorais',
+    synonyms: ['Antígeno Prostático Específico Total', 'Antigeno Prostatico Especifico Total'],
+    related: ['PSA Total e Livre', 'PSA Livre'],
+    shortDescription: 'Dosagem da quantidade total de PSA no sangue.',
+    purpose: 'Auxilia no rastreamento e acompanhamento de alterações prostáticas, sempre interpretado com idade, história clínica e exame médico.',
+    referenceValues: [
+      'Valores de referência variam com idade e laboratório; geralmente o laudo informa a faixa usada.'
+    ],
+    methodology: 'Imunoensaio por quimioluminescência ou eletroquimioluminescência.',
+    preparation: [
+      'Evitar ejaculação por 2 a 3 dias antes da coleta.',
+      'Evitar bicicleta, moto ou cavalgada nos 2 dias anteriores.',
+      'Informar procedimentos urológicos recentes.'
+    ],
+    interactions: [
+      'Finasterida e dutasterida podem reduzir o PSA total.',
+      'Prostatite, retenção urinária e manipulação prostática podem elevar o resultado.'
+    ],
+    curiosities: [
+      'PSA total elevado não fecha diagnóstico de câncer; ele indica que a próstata precisa ser avaliada com contexto.'
+    ]
+  },
+  {
+    id: 'psa-livre',
+    name: 'PSA Livre',
+    category: 'Marcadores Tumorais',
+    synonyms: ['Antígeno Prostático Específico Livre', 'Antigeno Prostatico Especifico Livre', 'Relação PSA livre total', 'Relação livre/total'],
+    related: ['PSA Total e Livre', 'PSA Total'],
+    shortDescription: 'Fração livre do PSA, usada junto com PSA total.',
+    purpose: 'Ajuda a interpretar elevações do PSA total, especialmente em faixas intermediárias de resultado.',
+    referenceValues: [
+      'A relação PSA livre/total é interpretada por percentuais e contexto clínico.'
+    ],
+    methodology: 'Imunoensaio por quimioluminescência ou eletroquimioluminescência.',
+    preparation: [
+      'Seguir o mesmo preparo do PSA total.',
+      'Evitar ejaculação, bicicleta, moto ou cavalgada antes da coleta conforme orientação.'
+    ],
+    interactions: [
+      'As mesmas interferências do PSA total podem afetar a interpretação da relação livre/total.'
+    ],
+    curiosities: [
+      'A fração livre ajuda a separar melhor alterações benignas de situações que exigem investigação mais cuidadosa.'
     ]
   },
   {

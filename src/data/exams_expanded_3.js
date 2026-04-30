@@ -108,6 +108,7 @@ export const expandedExamsData3 = [
     id: "proteinas-totais",
     name: "Proteínas Totais e Frações",
     category: "Bioquímica",
+    components: ["Proteínas Totais", "Albumina", "Globulinas", "Relação Albumina/Globulina"],
     shortDescription: "Mede todas as proteínas que estão fluindo no plasma.",
     purpose: "Avaliação do estado nutricional, doenças no fígado e rins. Inclui o cálculo das Globulinas (nossos anticorpos).",
     methodology: "Colorimétrico (Reação de Biureto para proteínas totais).",
